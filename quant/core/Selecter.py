@@ -4,7 +4,7 @@ import time
 import re
 from quant.tools.Util import sTools
 from quant.core.DB import sMysql
-from quant.settings import *
+from settings import *
 import pandas
 
 
@@ -72,7 +72,6 @@ class Selecter(object):
 
     def init(self, setting):
         self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
-
         limit = 100
         if 'limit' in setting.keys():
             limit = setting['limit']

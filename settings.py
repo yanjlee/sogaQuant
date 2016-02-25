@@ -6,3 +6,5 @@ MYSQL_DB = {
     'password': '1234asdf',
     'dbname': 'stock'
 }
+
+DailyStrongLog = '/htdocs/quant/data/strong_%s.blk'

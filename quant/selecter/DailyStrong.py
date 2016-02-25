@@ -1,5 +1,7 @@
 #! -*- coding:utf-8 -*-
 from quant.core.Selecter import *
+#from settings import *
+import settings
 
 
 class DailyStrongSelecter(Selecter):
@@ -13,7 +15,8 @@ class DailyStrongSelecter(Selecter):
     def run(self):
         today_select = self.todayDF[self.todayDF.high > 5]
         res = []
-        tofile = '/htdocs/quant/data/strong_%s.blk' % self.tools.d_date('%Y%m%d')
+        tofile = settings.DailyStrongLog % self.tools.d_date('%Y%m%d')
+
         fp = open(tofile, 'a+')
 
         for code in today_select.values:
