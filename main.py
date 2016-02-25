@@ -4,7 +4,6 @@ import sys
 #from quant.core.BackTestingEngine import *
 from quant.selecter.Wpkiller import *
 from quant.selecter.DailyStrong import *
-#from quant.selecter.DailyReport import *
 from quant.selecter.Dma import *
 from quant.selecter.DailyTrend import *
 
@@ -16,12 +15,6 @@ es = Elasticsearch(host="localhost", port="9200")
 
 
 def main():
-
-    #db = client.test
-
-    #coll= db.test_collection
-    #print db
-    #sys.exit()
     setting = {}
     #setting['end'] = '20151219'
     setting['bid_date'] = '20151223'
@@ -61,20 +54,6 @@ def main_test():
 
     b = DmaSelecter('pxhkiller', setting)
     b.run()
-
-    '''
-    client = pymongo.MongoClient('127.0.0.1', 27017)
-    db = client.spider
-    coll = db.s_stock_fuquan
-    rows = coll.find()
-
-    for row in rows:
-        #print row.keys()
-        print row['code']
-        #for key in row.keys():
-        #    print row[key]
-        #print ''
-    '''
 
 
 def main_spider():
