@@ -14,32 +14,6 @@ from quant.spider.Thematic import *
 es = Elasticsearch(host="localhost", port="9200")
 
 
-def main():
-    setting = {}
-    #setting['end'] = '20151219'
-    setting['bid_date'] = '20151223'
-    setting['limit'] = 3
-    #setting['where'] = " s_code='sh600029'"
-    '''
-    a = WpKillerSelecter('wpkiller', setting)
-    a.run()
-    sys.exit()
-    '''
-    '''
-    #setting['where'] = " s_code='sz300097'"
-    setting['limit'] = 4
-    b = DailyStrongSelecter('phkiller', setting)
-    b.run()
-    sys.exit()
-    '''
-
-    #setting['where'] = " s_code in('sh600038','sh600836','sz300190','sz300019')"
-    setting['where'] = " s_code in('sh600146','sz002527') "
-    setting['limit'] = 180
-    b = DmaSelecter('pxhkiller', setting)
-    b.run()
-
-
 def main_test():
     setting = {}
     setting['start'] = 20150101
@@ -133,7 +107,6 @@ def main_trend():
     setting['limit'] = 4
     b = DailyTrendSelecter('pxhkiller', setting)
     b.run()
-
 
 if __name__ == '__main__':
     #初始化策略类

@@ -11,9 +11,12 @@ tools = sTools()
 
 class Average(object):
 
+    def __init__(self):
+        self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
+
     def getChuQuan(self, s_code):
         '''获取历史除权数据,重写open and s_code in('sh600365')'''
-        chuQuan = pandas.read_sql("select s_code,dateline,factor from s_stock_fuquan where 1 and s_code in('%s') order by dateline DESC" % s_code, mysql.db)
+        chuQuan = pandas.read_sql("select s_code,dateline,factor from s_stock_fuquan where 1 and s_code in('%s') order by dateline DESC" % s_code, self.mysql.db)
 
         _chQ = {}
         _fa = 1
@@ -62,12 +65,12 @@ class Average(object):
     _chQ = {}
 
     def main_report(self, day):
-        mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
+
         '''
         dateline=%s" % day
         '''
         pandas.set_option('display.width', 200)
-        d2 = mysql.getRecord("select s_code from s_stock_list where dateline=%s" % day)
+        d2 = self.mysql.getRecord("select s_code from s_stock_list where dateline=%s" % day)
         #print d2
         #sys.exit()
         for i in range(0, len(d2)):
@@ -78,7 +81,7 @@ class Average(object):
             #print self._chQ
             sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name FROM s_stock_trade WHERE s_code ='%s' and dateline >20140101 " % s_code
             print sql_data
-            tmpdf2 = pandas.read_sql(sql_data, mysql.db)
+            tmpdf2 = pandas.read_sql(sql_data, self.mysql.db)
             tmpdf = tmpdf2.apply(self.format_chuquan_hanlder, axis=1)
             tmpdf.sort_values(by=('dateline'), ascending=False)
 
@@ -120,7 +123,7 @@ class Average(object):
                 item['ma30'] = _m30
                 item['ma60'] = _m60
 
-                mysql.dbInsert('s_stock_average', item)
+                self.mysql.dbInsert('s_stock_average', item)
 
     def format_chuquan_hanlder(self, x):
         if x.s_code not in self._chQ.keys():

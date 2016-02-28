@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import time
+import datetime
 from decimal import Decimal
 from quant.spider.TdxAnalyse import *
 from quant.strategy.Average import *
@@ -241,6 +243,54 @@ def main_elasticsearch():
         #sys.exit()
         i += 1
     es.indices.refresh(index="stock8")
+
+
+def main_while(abc):
+
+    i = 1
+    tools = sTools()
+    today = tools.d_date('%Y%m%d')
+    today = 20160226
+    while True:
+       # print i
+        #os.system('php /htdocs/soga/trader/index.php Base daily_stock_list')
+        _st_data = mysql.getRecord("select chg from s_stock_list where dateline= %s" % today)
+        unixtime = datetime.datetime.now().strftime("%s")
+        print unixtime
+        #sys.exit()
+        for i in range(len(_st_data)):
+            chg = _st_data[i][0]
+            #print chg
+            #sys.exit()
+
+            if chg <= -5:
+                _type = 1
+            elif chg > -5 and chg <= -3:
+                _type = 2
+            elif chg > -3 and chg <= 0:
+                _type = 3
+            elif chg > 0 and chg <= 3:
+                _type = 4
+            elif chg > 3 and chg <= 7:
+                _type = 5
+            else:
+                _type = 6
+
+            _has = mysql.fetch_one("select * from  s_status where s_t=%s" % unixtime)
+            #print res
+            #sys.exit()
+            _where = "s_t=%s" % unixtime
+            _field = "t_%s" % _type
+            res = {'s_t': unixtime, _field: 1}
+            #print res
+            #sys.exit()
+            if _has is not None:
+                mysql.dbQuery('update s_status set %s=%s+1 where %s' % (_field, _field, _where))
+            else:
+                mysql.dbInsert('s_status', res)
+
+        time.sleep(65)
+
 
 if __name__ == '__main__':
 
