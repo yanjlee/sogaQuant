@@ -15,26 +15,18 @@ def run_worker_template(params):
     while True:
         offset = id*params['limit']
         temp = mysql.getRecord("%s LIMIT %d, %d" % (params['sql'], offset, params['limit']))
-        #print temp
         print "%s LIMIT %d, %d" % (params['sql'], offset, params['limit'])
-        #sys.exit()
         if len(temp) == 0:
             break
         else:
-            l = len(temp)
             data = []
-            for i in range(0, l):
-                url = params['run_script'] % temp[i][0]
-                #url = params['run_script'] % (temp[i][0], temp[i][1])
+            for row in temp:
+                url = params['run_script'] % row.values()[0]
                 if('ext' in params.keys()):
                     url += params['ext']
-                print url
-                #sys.exit()
                 data.append(url)
         id += 1
         spider.run_php_worker(data)
-        #func = eval(params['run_func'])
-        #func(data)
     '''
     def check_stock_status(params):
         arr = {}
@@ -85,19 +77,15 @@ def get_multi_close_data(params):
     while True:
         offset = id*50
         temp = mysql.getRecord("SELECT s_code FROM s_stock_list WHERE 1 LIMIT %d, %d" % (offset, 50))
-
         if len(temp) == 0:
             break
         else:
-            l = len(temp)
             data = []
             resx = []
-            for i in range(0, l):
-                resx.append(temp[i][0])
+            for row in temp:
+                resx.append(row['s_code'])
 
             url = "php /htdocs/soga/trader/index.php Base get_closing_bid_new %s %s" % (",".join(resx), sys.argv[2])
-            #print url
-            #sys.exit()
             data.append(url)
         id += 1
         print id

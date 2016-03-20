@@ -1,7 +1,5 @@
 #! -*- coding:utf-8 -*-
 from quant.core.Selecter import *
-#from settings import *
-import settings
 
 
 class DailyStrongSelecter(Selecter):
@@ -9,14 +7,13 @@ class DailyStrongSelecter(Selecter):
     N天涨幅超过25%
     '''
     def __init__(self, name, setting):
-        super(DailyStrongSelecter, self).__init__(name, setting)
+        Selecter.__init__(self, name, setting)
         self.setting = setting
 
     def run(self):
         today_select = self.todayDF[self.todayDF.high > 5]
         res = []
-        tofile = settings.DailyStrongLog % self.tools.d_date('%Y%m%d')
-
+        tofile = DAILY_STRONG_LOG % self.tools.d_date('%Y%m%d')
         fp = open(tofile, 'a+')
 
         for code in today_select.values:

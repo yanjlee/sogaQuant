@@ -7,7 +7,7 @@ class WpKillerSelecter(Selecter):
     跳开，冲高回落
     '''
     def __init__(self, name, setting):
-        super(WpKillerSelecter, self).__init__(name, setting)
+        Selecter.__init__(self, name, setting)
 
     def run(self):
         today_select = self.todayDF[(self.todayDF.chg > 0) & (self.todayDF.chg < 9.8)]

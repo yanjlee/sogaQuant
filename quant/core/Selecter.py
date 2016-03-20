@@ -2,13 +2,12 @@
 import sys
 import time
 import re
-from quant.tools.Util import sTools
-from quant.core.DB import sMysql
+from quant.core.Abstract import *
 from settings import *
 import pandas
 
 
-class Selecter(object):
+class Selecter(Abstract):
 
     bk_start = 0
     bk_end = 0
@@ -16,9 +15,9 @@ class Selecter(object):
     listDataHistory = None
 
     def __init__(self, name, setting):
+        Abstract.__init__(self)
         self.bk_start = time.clock()
         print sys.argv
-        self.tools = sTools()
         self.init(setting)
 
     def __del__(self):
@@ -60,10 +59,8 @@ class Selecter(object):
 
         if len(_where) > 0:
             temp = self.mysql.getRecord("select s_code from s_stock_list where %s " % (' OR '.join(_where)))
-            l = len(temp)
-
-            for i in range(0, l):
-                resx.append(str(temp[i][0]))
+            for row in temp:
+                resx.append(str(row['s_code']))
 
         _codes = '","'.join(resx)
 
@@ -71,13 +68,12 @@ class Selecter(object):
         return ids_str
 
     def init(self, setting):
-        self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
+        #self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
         limit = 100
         if 'limit' in setting.keys():
             limit = setting['limit']
 
         _where = []
-
         if setting['start'] == setting['end']:
             _where.append(" dateline = %s" % setting['end'])
         else:
@@ -101,9 +97,8 @@ class Selecter(object):
         print date_sql
         temp = self.mysql.getRecord(date_sql)
 
-        self.lastDay = temp[0][0]
-        self.yestoday = temp[1][0]
-
+        self.lastDay = temp[0]['dateline']
+        self.yestoday = temp[1]['dateline']
         pandas.set_option('display.width', 200)
         sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name FROM s_stock_trade WHERE %s " % _wheres
         print sql_data
@@ -116,8 +111,6 @@ class Selecter(object):
             #print self._chQ
             #sys.exit()
             self.df = tmpdf.apply(self.format_chuquan_hanlder, axis=1)
-            #print self.df
-            #sys.exit()
         else:
             self.df = tmpdf
         self.todayDF = self.df[self.df.dateline == int(self.lastDay)]
@@ -144,8 +137,6 @@ class Selecter(object):
                 x.close = x.close * _fac
                 x.high = x.high * _fac
                 x.low = x.low * _fac
-                #print x
-                #sys.exit()
         return x
 
     def getChuQuan(self):

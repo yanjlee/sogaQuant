@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
-'''
-Tdx分时异动
-'''
-import sys
-from quant.core.Spider import *
+from quant.core.Stats import *
 
 
-class TdxAnalyseSpider(SpiderEngine):
+class TdxAnalyse(StatsEngine):
 
+    def __init__(self, args):
+        StatsEngine.__init__(self)
+        self.args = args
+
+    '''
+    Tdx分时异动
+    '''
     def filter_code(self, codeName):
         ms = re.findall(re.compile(r'\*|N|ST'), codeName)
         return ms
 
-    def init(self, fromfile, tofile):
+    def run(self, fromfile, tofile):
+        print self.args
         data = {}
         f = open(fromfile, 'rb')
         lines = f.readlines()
@@ -151,11 +155,8 @@ class TdxAnalyseSpider(SpiderEngine):
                 str(data[s_code]['chemai']),
                 data[s_code]['chemai_no']
                 )
-
             fp = open(tofile, 'a+')
-            #fp.write(f)
             fp.write(stx)
-        #print data
 
     def __co_scode(self, code):
         a = code[0:1]
@@ -165,8 +166,3 @@ class TdxAnalyseSpider(SpiderEngine):
         else:
             b = 'sz%s'
         return b % code
-
-if __name__ == '__main__':
-
-    a = TdxAnalyseSpider()
-    a.init()

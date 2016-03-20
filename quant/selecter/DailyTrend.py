@@ -7,7 +7,7 @@ class DailyTrendSelecter(Selecter):
     指定时间内的高低点,判断当前处于超跌还是超买
     '''
     def __init__(self, name, setting):
-        super(DailyTrendSelecter, self).__init__(name, setting)
+        Selecter.__init__(self, name, setting)
         self.setting = setting
 
     def run(self):

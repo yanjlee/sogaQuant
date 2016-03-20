@@ -18,7 +18,7 @@ echo "LHB stock list done.\n"
 python multi.py get_day_lhb $TODAY
 echo "LHB stock detail done.\n"
 
-python daily.py k_day_report $TODAY
+python daily.py get_limit $TODAY
 echo "Stock Day_Report done.\n"
 
 php /htdocs/soga/trader/index.php Lhb get_daily_lyb $TODAY
@@ -26,8 +26,13 @@ php /htdocs/soga/trader/index.php Lhb get_daily_lyb $TODAY
 python multi.py get_multi_close_data $TODAY
 echo "Stock daily closing Bid.\n"
 
-python daily.py k_average $TODAY
+python daily.py get_average $TODAY
 
-python daily.py k_ma_count $TODAY
+python daily.py get_macount $TODAY
 echo "MA_count Done."
+
+
+#runtime
+#python daily.py get_change 20160320
+#python daily.py get_min_data
 

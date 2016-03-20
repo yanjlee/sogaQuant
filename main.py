@@ -52,7 +52,7 @@ def main_killer():
 
 def main_dailyStrong(end):
     setting = {}
-    setting['start'] = '20160201'
+    setting['start'] = '20160310'
     setting['end'] = end
     setting['limit'] = 3
     b = DailyStrongSelecter('phkiller', setting)

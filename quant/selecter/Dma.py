@@ -96,7 +96,7 @@ XG: _FILTER_0 AND _FILTER_3 AND (_FILTER_1 OR _FILTER_2) AND _FILTER_4 AND _FILT
 
     '''
     def __init__(self, name, setting):
-        super(DmaSelecter, self).__init__(name, setting)
+        Selecter.__init__(self, name, setting)
         self.setting = setting
 
     def makeMa(self):

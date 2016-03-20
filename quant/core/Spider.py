@@ -3,21 +3,19 @@ import os
 import urllib2
 import re
 from quant.core.Worker import *
-from quant.core.DB import sMysql
-from quant.settings import *
-
+from quant.core.Abstract import *
 WORKER = 8
 
 
-class SpiderEngine(object):
+class SpiderEngine(Abstract):
     ref = ''
 
-    def __init__(self):
-        self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
-        self.headers = []
+    #def __init__(self):
+        #self.mysql = sMysql(MYSQL_DB['host'], MYSQL_DB['user'], MYSQL_DB['password'], MYSQL_DB['dbname'])
+        #self.headers = []
 
     def run_worker(self, data):
-        requests = makeRequests(self.get_info, data)
+        requests = makeRequests(self.get_info, data, self.print_result, self.handle_exception)
         print ("Creating thread pool with %s worker threads." % WORKER)
         main = ThreadPool(WORKER)
         for req in requests:
@@ -145,6 +143,7 @@ class SpiderEngine(object):
         return htmlstr
 
     def print_result(self, request, result):
+        print request
         print ("**** Result from request #%s: %r" % (request.requestID, result))
 
     #异常处理
