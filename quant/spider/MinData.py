@@ -84,14 +84,16 @@ class MinDataSpider(SpiderEngine):
             else:
                 vol = tmp[2] - data[i-1][2]
             dmin = "%s00" % tmp[0]
-            word = _data.replace(' ', ',')
-
             indata = {
                 's_code': s_code,
                 'dateline': self.today,
-                'date_min': dmin,
-                'price': tmp[1],
-                'volumes': vol,
-                'hash': hashlib.md5(word).hexdigest()
+                'date_min': dmin
             }
-            self.mysql.dbInsert('s_stock_minute', indata)
+            word = '-'.join(indata.values())
+            value = self.mc.get(str(word))
+            if value is None:
+                indata['price'] = tmp[1]
+                indata['volumes'] = vol
+                indata['hash'] = hashlib.md5(word).hexdigest()
+                self.mysql.dbInsert('s_stock_minute', indata)
+                self.mc.set(str(word), 1, 86400*2)
