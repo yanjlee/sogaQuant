@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
+import logging
 import hashlib
 import memcache
+import time
 from quant.core.Spider import *
 
 
@@ -20,13 +22,18 @@ class MinDataSpider(SpiderEngine):
 
     def run(self):
         print sys.argv
-        #file_path = '%s/%s' % (MIN_DATA_LOG, self.today)
-        #if os.path.exists(file_path) is False:
-        #    os.makedirs(file_path)
-        while True:
+        self.tools.setup_logging(sys.argv[1], True, True)
+        '''
+        logging.info('start looping, args: %s' % sys.argv)
+        logging.exception('Fail to read data.')
+        logging.debug('save debug ')
+        logging.warn('save warning ')
+        return 1
+        '''
+        while not self.interrupted:
             block_time = int(self.tools.d_date('%H%M%S'))
             if (block_time > 113000 and block_time < 130000) or block_time > 153000 or block_time < 93000:
-                print "%s====Market Close;" % block_time
+                logging.info("Market Close")
                 time.sleep(120)
                 continue
             datas = []
@@ -34,7 +41,6 @@ class MinDataSpider(SpiderEngine):
             for row in data:
                 datas.append(row['s_code'])
             self.run_worker(datas)
-
             time.sleep(1000)
 
     def get_minute_from_sina(self, s_code):

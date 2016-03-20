@@ -6,8 +6,12 @@ staticmethod调用不用实例化 sTools.func()
 '''
 #import urllib.parse,
 import re
+import os
 import time
+import logging
+import logging.handlers
 from datetime import *
+from quant.settings import *
 '''
 __all__ = [
     'sWrite',
@@ -104,3 +108,34 @@ class sTools:
             self._benchmark[name].update({'e': datetime.now().strftime("%s"), 'e2': datetime.now().microsecond})
         else:
             self._benchmark[name] = {'e': datetime.now().strftime("%s"), 'e2': datetime.now().microsecond}
+
+    def setup_logging(self, job, daemon=False, verbose=False):
+        #log_folder = '%s/%s' % (JOB_LOGS_DIRECTORY, job)
+        #file_path = '%s/%s' % (MIN_DATA_LOG, self.today)
+        if os.path.exists(JOB_LOGS_DIRECTORY) is False:
+            os.makedirs(JOB_LOGS_DIRECTORY)
+
+        log_filename = '%s/%s.log' % (JOB_LOGS_DIRECTORY, job)
+        logger = logging.getLogger()
+
+        if verbose:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+
+        handlers = []
+
+        if daemon:
+            handlers.append(logging.handlers.TimedRotatingFileHandler(filename=log_filename, when='midnight'))
+        else:
+            handlers.append(logging.FileHandler(filename='%s.%s' % (log_filename, time.strftime('%Y-%m-%d'))))
+
+        handlers.append(logging.StreamHandler())
+
+        for handler in handlers:
+            if verbose:
+                handler.setLevel(logging.DEBUG)
+            else:
+                handler.setLevel(logging.INFO)
+            handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+            logger.addHandler(handler)
