@@ -55,29 +55,33 @@ class LimitList(StatsEngine):
         for row in data:
             if row['high'] == 0:
                 continue
-            #if data[i][4] != 'sz000420':
-            #    continue
+            #if row['s_code'] != 'sz002097':
+                #continue
+
             res['sz_max'] += 1
             if row['chg'] > 0:
                 res['sz_up'] += 1
                 #是否涨停 昨日收盘价*1.1
                 up_price = float(row['last_close']) * 1.1
                 up_price = '{:.2f}'.format(Decimal(str(up_price)))
+                #print up_price
                 _res = {'m': 0, 'l': 0, 'k': 0}
                 if row['last_close'] and row['high'] and row['close']:
-                    if float(row['close']) == float(up_price):
+                    if float(row['high']) == float(up_price):
                         _res['m'] = 1
                         #最高价==当前价
                         if row['high'] == row['close']:
                             _res['l'] = 1
                         else:
                             _res['k'] = 1
+
                 if _res['m'] == 1:
                     res['zt_top'] += _res['m']
                     res['zt_last'] += _res['l']
                     res['zt_open'] += _res['k']
             else:
                 res['sz_down'] += 1
+
         _has = self.mysql.fetch_one("select * from  s_daily_report where dateline=%s" % indate)
         _where = "dateline=%s" % indate
         if _has is not None:

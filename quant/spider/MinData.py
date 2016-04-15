@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import logging
+import pymongo
 import hashlib
 import memcache
 import time
@@ -30,6 +31,10 @@ class MinDataSpider(SpiderEngine):
         logging.warn('save warning ')
         return 1
         '''
+        MONGO_IP = '127.0.0.1'
+        client = pymongo.MongoClient(MONGO_IP, 27017)
+        self.mango_db = client.spider
+
         while not self.interrupted:
             block_time = int(self.tools.d_date('%H%M%S'))
             if (block_time > 113000 and block_time < 130000) or block_time > 153000 or block_time < 93000:
@@ -37,7 +42,9 @@ class MinDataSpider(SpiderEngine):
                 time.sleep(120)
                 continue
             datas = []
+            logging.info("Market Open %s" % block_time)
             data = self.mysql.getRecord("select * from s_stock_list where dateline=%s " % self.today)
+
             for row in data:
                 datas.append(row['s_code'])
             self.run_worker(datas)
@@ -66,7 +73,8 @@ class MinDataSpider(SpiderEngine):
                 indata['price'] = tmp[1]
                 indata['volumes'] = tmp[2]
                 indata['hash'] = hashlib.md5(word).hexdigest()
-                self.mysql.dbInsert('s_stock_minute', indata)
+                #self.mysql.dbInsert('s_stock_minute', indata)
+                self.mango_db.run_time.insert(indata)
                 self.mc.set(str(word), 1, 86400*2)
 
     def get_minute_from_qq(self, s_code):

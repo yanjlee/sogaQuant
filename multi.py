@@ -58,6 +58,7 @@ def get_stock_mintue2(params):
 
 
 #龙虎榜
+'''
 def get_day_lhb(params):
     arr = {}
     arr['sql'] = "SELECT s_code FROM s_lhb_days WHERE status=0"
@@ -69,6 +70,7 @@ def get_day_lhb(params):
     #arr['run_func'] = 'run_php_worker'
     arr['ext'] = params
     return arr
+'''
 
 
 #每日收盘竞价

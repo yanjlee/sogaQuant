@@ -71,18 +71,15 @@ class SpiderEngine(Abstract):
         cookie = cookielib.CookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
         urllib2.install_opener(opener)
-        #print url
         req = urllib2.Request(url=url, headers=headers)
 
         try:
             data = urllib2.urlopen(req)
-        except:
-            data = urllib2.urlopen(req)
-        #print data
-        #sys.exit()
+        except IOError, e:
+            print e
+            if(e.code == 404):
+                return False
         data = data.read()
-        #print data
-        #sys.exit()
         if ch == 'gbk':
             data = data.decode("gbk", 'ignore')
         elif ch == 'utf8':
@@ -92,9 +89,9 @@ class SpiderEngine(Abstract):
     def sPost(self, url, postdata={}, cookies={}, ch='gbk', bt='solomon'):
         bots = {"baidu": "Baiduspider+(+http://www.baidu.com/search/spider.htm)", 'google': "Googlebot/2.1 (+http://www.google.com/bot.html)", 'solomon': "Solomon Net Vampire/1.0"}
         headers = {'User-Agent': bots[bt]}
-        values = urllib.parse.urlencode(postdata)
-        req = urllib.request.Request(url, values, headers)
-        data = urllib.request.urlopen(req)
+        values = urllib2.parse.urlencode(postdata)
+        req = urllib2.request.Request(url, values, headers)
+        data = urllib2.request.urlopen(req)
         data = data.read()
         if ch == 'gbk':
             data = data.decode("gbk", 'ignore')

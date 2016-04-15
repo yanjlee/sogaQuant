@@ -38,6 +38,7 @@ class sMysql:
         self.dbcharset = dbcharset
         #sid = 'dsn=%s;uid=%s;pwd=%s' % (self.dsn,self.dbuser,self.dbpwd)
         self.db = MySQLdb.connect(host=self.dbhost, user=self.dbuser, passwd=self.dbpwd, db=self.dbname)
+        self.db.ping(True)
         self.cursor = self.db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
         self.cursor.execute("SET character_set_connection=%s, character_set_results=%s, character_set_client=binary" % (self.dbcharset, self.dbcharset))
         #db.set_character_set('utf8')

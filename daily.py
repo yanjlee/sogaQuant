@@ -4,6 +4,10 @@ import sys
 import time
 
 from quant.spider.MinData import *
+from quant.spider.LhbData import *
+from quant.spider.Index import *
+from quant.spider.WeiXin import *
+from quant.spider.Fund import *
 
 from quant.stats.ElSearch import *
 from quant.stats.Average import *
@@ -11,6 +15,7 @@ from quant.stats.LimitList import *
 from quant.stats.MaCount import *
 from quant.stats.RunTimeChange import *
 from quant.stats.TdxAnalyse import *
+from quant.stats.LhbCount import *
 
 
 def get_tdx(indate):
@@ -54,6 +59,27 @@ def get_min_data(abc):
 def get_change(abc):
     a = RunTimeChange(sys.argv)
     a.run()
+
+
+def get_lhb_data(abc):
+    LhbDataSpider().run()
+
+
+def get_index_data(abc):
+    IndexSpider().run()
+
+
+def count_lhb_data(abc):
+    LhbCount(sys.argv).run()
+
+
+def get_wx_data(abc):
+
+    WeiXinSpider().run()
+
+
+def get_fund_data(abc):
+    FundSpider().run()
 
 
 class Job:
