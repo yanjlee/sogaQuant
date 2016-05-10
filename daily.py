@@ -9,6 +9,7 @@ from quant.spider.Index import *
 from quant.spider.WeiXin import *
 from quant.spider.Fund import *
 
+
 from quant.stats.ElSearch import *
 from quant.stats.Average import *
 from quant.stats.LimitList import *
@@ -27,6 +28,13 @@ def get_tdx(indate):
 
 def get_factor(abc):
     os.system('php /htdocs/soga/trader/index.php Base get_fq_factor')
+
+
+def get_video(abc):
+    while True:
+        #block_time = int(self.tools.d_date('%H%M%S'))
+        os.system(' /bin/bash /htdocs/quant/soga/wdSpider/a.sh')
+        time.sleep(120)
 
 
 def get_es(abc):
@@ -80,6 +88,22 @@ def get_wx_data(abc):
 
 def get_fund_data(abc):
     FundSpider().run()
+
+
+def get_wd_data(abc):
+    #wd
+    #QuestionSpider().run()
+    from elasticsearch import Elasticsearch
+    es = Elasticsearch(host='172.16.11.240', port=9200)
+    doc = {
+        'request_url': 'http://www.baidu.com',
+        'request_query': 22,
+        'reponse_result': 22,
+        'start_time': '2016-04-26 10:00'
+
+    }
+    es.index(index="yrb", doc_type='info', id=1, body=doc)
+    es.indices.refresh(index="yrb")
 
 
 class Job:

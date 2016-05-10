@@ -69,11 +69,9 @@ class sMysql:
 
     def dbInsert(self, table, param):
         field = ",".join(param.keys())
-        field_v = ",".join(["'%s'" % k for k in param.values()])
+        field_v = ",".join(["'%s'" % MySQLdb.escape_string(str(k)) for k in param.values()])
 
         sql = "INSERT INTO %s(%s) VALUES (%s)" % ("%s.%s" % (self.dbname, table), field, field_v)
-
-        #print sql
         #filename='111.txt'
         #fp=open(filename,'a+')
         #fp.write(sql)
@@ -93,6 +91,7 @@ class sMysql:
         self.db.commit()
         return True
 
-    def dbClose():
+    def dbClose(self):
+        self.cursor.close()
         return True
         #connection.close()

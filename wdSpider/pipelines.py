@@ -8,6 +8,8 @@ import urllib
 import urllib2
 from wdSpider.utils.tools import sTools
 from scrapy.conf import settings
+from wdSpider.utils.db import sMysql
+import hashlib
 
 
 class WdspiderPipeline(object):
@@ -29,6 +31,18 @@ class WdspiderPipeline(object):
 
         if "WdspiderItem" in item.__class__.__name__:
             stools = sTools()
+            mysql = sMysql('127.0.0.1', 'root', '1234asdf', 'we_center')
+            _hash = hashlib.md5(item['callback']).hexdigest()
+            _has = mysql.getRecord("select * from  spider_urls where hash='%s'" % _hash, 1)
+            indata = {'url': item['callback'], 'hash': _hash}
+
+            print indata
+            if _has is None:
+                mysql.dbInsert('spider_urls', indata)
+            else:
+                print "This Url exists....."
+                return False
+
             url2 = 'http://hint.wenwen.sogou.com/web?ie=utf8&callback=hintdata&query=%s&jsonpCallback=hintdata&_=0.797329780370241&callback=hintdata' % item['question']
             print url2
             _data2 = stools.sGet(url2, 'utf8')

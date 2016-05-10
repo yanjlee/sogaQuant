@@ -65,8 +65,7 @@ class SpiderEngine(Abstract):
             #'Accept-Encoding': 'gzip, deflate, sdch',
             'Accept-Language': 'zh-CN,zh;q=0.8,ja;q=0.6'
         }
-        if self.ref is not None:
-            headers['Referer'] = self.ref
+
         import cookielib
         cookie = cookielib.CookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))

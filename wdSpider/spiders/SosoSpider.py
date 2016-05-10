@@ -11,7 +11,8 @@ from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from scrapy.http import Request
 #from scrapy.conf import settings
-
+from wdSpider.utils.db import sMysql
+import hashlib
 from wdSpider.utils.tools import sTools
 from wdSpider.items import WdspiderItem
 
@@ -21,10 +22,11 @@ class SosoSpider(BaseSpider):
     allow_domains = ["soso.com"]
     #start_urls = ["http://zhidao.baidu.com/"]
     start_urls = [
-        #"http://wenwen.sogou.com/cate/?cid=16777216&tp=6&pg=",
-        #"http://wenwen.sogou.com/cate/?cid=553648128&tp=6&pg="
-        #"http://wenwen.sogou.com/qun/world/"
-        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=996&tagId=0&startPage=0&listType=3&_=1461743864405"
+        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=115&tagId=0&startPage=0&listType=&_=1461743864405",
+        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=112&tagId=0&startPage=0&listType=&_=1461743864405",
+        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=110&tagId=0&startPage=0&listType=&_=1461743864405",
+        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=108&tagId=0&startPage=0&listType=&_=1461743864405",
+        "http://wenwen.sogou.com/wapi/qun/world/list?groupUin=0&len=10&cateId=105&tagId=0&startPage=0&listType=&_=1461743864405",
         ]
 
     def __init__(self, category=None):
@@ -33,19 +35,40 @@ class SosoSpider(BaseSpider):
     def make_requests_from_url(self, url):
         return Request(url, callback=self.parse_list)
 
-    def __qun_wd(self, _data):
+    def __qun_wd(self, response):
+        _data = response.body
         re = json.loads(_data)
-
+        mysql = sMysql('127.0.0.1', 'root', '1234asdf', 'we_center')
         for i in range(0, len(re['qunWorldQuestionList'])):
             item = {}
+            if re['qunWorldQuestionList'][i]['answerNum'] == 0:
+                continue
+            #print re['qunWorldQuestionList'][i].keys()
+            #sys.exit()
+            if 'answers' not in re['qunWorldQuestionList'][i].keys() or re['qunWorldQuestionList'][i]['answers'] is None:
+                continue
+
+            #print re['qunWorldQuestionList'][i]['answers']
+            #sys.exit()
             item['question'] = re['qunWorldQuestionList'][i]['content'].encode('utf-8')
             item['question_detail'] = ''
             item['topics'] = ''
             item['answers'] = [{'agree_count': random.randint(5, 25), 'publish_time': time.time(), "comments": {}}]
             item['answers_text'] = re['qunWorldQuestionList'][i]['answers'][0]['richText'].encode('utf-8')
             item['signcc'] = 123123
-            item['callback'] = 'http://www.baidu.com/?/shenjianshou/question/'
+            item['callback'] = 'http://wenwen.sogou.com/qun/world/question?qid=%s' % re['qunWorldQuestionList'][i]['id']
 
+
+            _hash = hashlib.md5(item['callback']).hexdigest()
+            _has = mysql.getRecord("select * from  spider_urls where hash='%s'" % _hash, 1)
+            indata = {'url': item['callback'], 'hash': _hash}
+
+            print indata
+            if _has is None:
+                mysql.dbInsert('spider_urls', indata)
+            else:
+                print "This Url exists....."
+                continue
             req = urllib2.Request("http://www.zhidaode.com/?/shenjianshou/question/")
             data = urllib.urlencode(item)
             #enable cookie
@@ -63,9 +86,9 @@ class SosoSpider(BaseSpider):
             yield Request(response.url+"page"+str(i)+"/",callback=self.page_parse)
 
         '''
-        self.__qun_wd(response.body)
-        sys.exit()
-
+        self.__qun_wd(response)
+        return False
+        '''
         #print response.body
         stools = sTools()
         all_links = stools.sMatch('href="\/z\/q', '\.htm\?ch=wtk\.title">', response.body, 0)
@@ -80,6 +103,7 @@ class SosoSpider(BaseSpider):
 
             yield Request(url=link, meta={"items": items}, callback=self.get_page_parse)
             #sys.exit()
+        '''
 
     def get_page_parse(self, response):
         hxs = HtmlXPathSelector(response)
@@ -103,6 +127,6 @@ class SosoSpider(BaseSpider):
         item['answers'] = [{'agree_count': random.randint(5, 25), 'publish_time': time.time(), "comments": {}}],
         item['answers_text'] = _ans[0]
         item['signcc'] = 123123,
-        item['callback'] = 'http://www.baidu.com/?/shenjianshou/question/'
+        item['callback'] = response.url
         #print item
         return item

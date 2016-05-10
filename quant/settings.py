@@ -24,5 +24,5 @@ MEMCACHE_HOST = ['127.0.0.1:11211']
 
 ES_CONFIG = {
     'host': 'localhost',
-    'user': '9200',
+    'port': '9200',
 }

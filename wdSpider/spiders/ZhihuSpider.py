@@ -76,6 +76,6 @@ class ZhihuSpider(BaseSpider):
         item['answers'] = [{'agree_count': random.randint(5, 25), 'publish_time': time.time(), "comments": {}}]
         item['answers_text'] = askstr
         item['signcc'] = 123123
-        item['callback'] = 'http://www.baidu.com/?/shenjianshou/question/'
+        item['callback'] = response.url
         #print item
         return item

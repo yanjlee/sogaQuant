@@ -140,6 +140,7 @@ class sTools:
             handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
             logger.addHandler(handler)
 
+    '''
     def strip_tags(self, string, allowed_tags=''):
         if allowed_tags != '':
             # Get a list of all allowed tag names.
@@ -162,3 +163,65 @@ class sTools:
             # If no allowed tags, remove all.
             string = re.sub(r'<[^>]*?>', '', string)
         return string
+    '''
+    ##过滤HTML中的标签
+    #将HTML中标签等信息去掉
+    #@param htmlstr HTML字符串.
+    def strip_tags(self, htmlstr):
+        #先过滤CDATA
+        re_cdata = re.compile('//<!\[CDATA\[[^>]*//\]\]>', re.I)
+        re_script = re.compile('<\s*script[^>]*>[^<]*<\s*/\s*script\s*>', re.I)
+        re_style = re.compile('<\s*style[^>]*>[^<]*<\s*/\s*style\s*>', re.I)
+        re_br = re.compile('<br\s*?/?>')
+        re_h = re.compile('</?\w+[^>]*>')
+        re_comment = re.compile('<!--[^>]*-->')
+        htmlstr = htmlstr.replace('\r\n', '')
+        s = re_cdata.sub('', htmlstr)
+        s = re_script.sub('', s)
+        s = re_style.sub('', s)
+        s = re_br.sub('\n', s)
+        s = re_h.sub('', s)
+        s = re_comment.sub('', s)
+        #去掉多余的空行
+        blank_line = re.compile('\n+')
+        s = blank_line.sub('\n', s)
+
+        #s=replaceCharEntity(s)
+        return s
+
+    ##替换常用HTML字符实体.
+    #使用正常的字符替换HTML中特殊的字符实体.
+    #你可以添加新的实体字符到CHAR_ENTITIES中,处理更多HTML字符实体.
+    #@param htmlstr HTML字符串.
+    def replaceCharEntity(self, htmlstr):
+        CHAR_ENTITIES = {
+            'nbsp': ' ',
+            '160': ' ',
+            'lt': '<',
+            '60': '<',
+            'gt': '>',
+            '62': '>',
+            'amp': '&',
+            '38': '&',
+            'quot': '"',
+            '34': '"',
+        }
+
+        re_charEntity = re.compile(r'&#?(?P<name>\w+);')
+        sz = re_charEntity.search(htmlstr)
+        while sz:
+            #entity全称，如>
+            #entity = sz.group()
+            #去除&;后entity,如>为gt
+            key = sz.group('name')
+            try:
+                htmlstr = re_charEntity.sub(CHAR_ENTITIES[key], htmlstr, 1)
+                sz = re_charEntity.search(htmlstr)
+            except KeyError:
+                #以空串代替
+                htmlstr = re_charEntity.sub('', htmlstr, 1)
+                sz = re_charEntity.search(htmlstr)
+        return htmlstr
+
+    def repalce(self, s, re_exp, repl_string):
+        return re_exp.sub(repl_string, s)
