@@ -74,16 +74,18 @@ class SpiderEngine(Abstract):
 
         try:
             data = urllib2.urlopen(req)
+            data = data.read()
+            if ch == 'gbk':
+                data = data.decode("gbk", 'ignore')
+            elif ch == 'utf8':
+                data = data.decode("utf-8")
+            return data
+
         except IOError, e:
             print e
-            if(e.code == 404):
-                return False
-        data = data.read()
-        if ch == 'gbk':
-            data = data.decode("gbk", 'ignore')
-        elif ch == 'utf8':
-            data = data.decode("utf-8")
-        return data
+            #if(e.code == 404):
+            #    return False
+
 
     def sPost(self, url, postdata={}, cookies={}, ch='gbk', bt='solomon'):
         bots = {"baidu": "Baiduspider+(+http://www.baidu.com/search/spider.htm)", 'google': "Googlebot/2.1 (+http://www.google.com/bot.html)", 'solomon': "Solomon Net Vampire/1.0"}
