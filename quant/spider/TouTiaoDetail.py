@@ -35,7 +35,7 @@ class TouTiaoDetailSpider(SpiderEngine):
 
             html = self.sGet(url, 'utf-8')
             tag = self.sMatch("tt-videoid='", "'", html, 0)
-            if tag is None:
+            if len(tag) == 0:
                 up = {'is_done': 1}
             else:
                 up = {'video_url': tag[0], 'is_done': 1}
