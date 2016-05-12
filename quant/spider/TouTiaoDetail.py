@@ -35,5 +35,8 @@ class TouTiaoDetailSpider(SpiderEngine):
 
             html = self.sGet(url, 'utf-8')
             tag = self.sMatch("tt-videoid='", "'", html, 0)
-            up = {'video_url': tag[0], 'is_done': 1}
+            if tag is None:
+                up = {'is_done': 1}
+            else:
+                up = {'video_url': tag[0], 'is_done': 1}
             mysql.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
