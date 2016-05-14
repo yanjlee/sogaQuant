@@ -69,6 +69,20 @@ class sMysql:
 
     def dbInsert(self, table, param):
         field = ",".join(param.keys())
+        field_v = ",".join(["'%s'" % k for k in param.values()])
+        #field_v = ''
+        sql = "INSERT INTO %s(%s) VALUES (%s)" % ("%s.%s" % (self.dbname, table), field, field_v)
+        #print sql
+        #filename='111.txt'
+        #fp=open(filename,'a+')
+        #fp.write(sql)
+        self.cursor.execute(sql)
+        self.db.commit()
+
+        return self.getRecord("SELECT LAST_INSERT_ID()", 1)
+
+    def dbInsert_st(self, table, param):
+        field = ",".join(param.keys())
         field_v = ",".join(["'%s'" % MySQLdb.escape_string(k) for k in param.values()])
         #field_v = ''
         sql = "INSERT INTO %s(%s) VALUES (%s)" % ("%s.%s" % (self.dbname, table), field, field_v)

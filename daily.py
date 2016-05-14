@@ -9,6 +9,7 @@ from quant.spider.Index import *
 from quant.spider.WeiXin import *
 from quant.spider.Fund import *
 from quant.spider.TouTiao import *
+from quant.spider.TouTiaoDetail import *
 
 from quant.stats.ElSearch import *
 from quant.stats.Average import *
@@ -36,6 +37,13 @@ def get_video(abc):
         #os.system(' /bin/bash /htdocs/quant/soga/wdSpider/a.sh')
     TouTiaoSpider().run()
     #time.sleep(60)
+
+
+def get_video_info(abc):
+    #while True:
+        #block_time = int(self.tools.d_date('%H%M%S'))
+        #os.system(' /bin/bash /htdocs/quant/soga/wdSpider/a.sh')
+    TouTiaoDetailSpider().run()
 
 
 def get_es(abc):

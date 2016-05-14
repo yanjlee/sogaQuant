@@ -18,7 +18,10 @@ class ZhihuSpider(BaseSpider):
     name = 'zhihu'
     allow_domains = ["zhihu.com"]
     #start_urls = ["http://zhidao.baidu.com/"]
-    start_urls = ["http://www.zhihu.com/explore"]
+    start_urls = [
+        "http://www.zhihu.com/explore",
+        #u"http://www.zhihu.com/search?type=content&q=女主播不许吃香蕉"
+        ]
     headers = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip,deflate",
@@ -46,6 +49,8 @@ class ZhihuSpider(BaseSpider):
 
         '''
         all_links = hxs.select('//a[@class="question_link"]/@href').extract()
+        #all_links = hxs.select('//a[@class="js-title-link"]/@href').extract()
+
         #print all_links
         #sys.exit()
         for link in all_links:
