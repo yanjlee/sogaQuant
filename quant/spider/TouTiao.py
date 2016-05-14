@@ -24,7 +24,8 @@ class TouTiaoSpider(SpiderEngine):
         self.tools.setup_logging(sys.argv[1], True, True)
         _data = self.sGet('http://toutiao.com/api/article/recent/?source=2&count=50&category=video&_=1462718705623')
         re = json.loads(_data)
-        mysql = sMysql('127.0.0.1', 'root', '1234asdf', 'quncms')
+        quncms_db = self.config['mysql']['quncms']
+        mysql = sMysql(quncms_db['host'], quncms_db['user'], quncms_db['password'], quncms_db['dbname'])
 
         for i in range(0, len(re['data'])):
             item = {}
