@@ -33,7 +33,7 @@ class TouTiaoDetailSpider(SpiderEngine):
             url = "http://www.toutiao.com%s" % data['item_seo_url']
             print url
             logging.debug('===%s===url:%s' % (data['itemid'], url))
-            status = urllib.urlopen("http://www.toutiao.com/i6282880816871637505/").code
+            status = urllib.urlopen(url).code
             if status == 404:
                 mysql.dbQuery("DELETE FROM video_contents where itemid=%s" % data['itemid'])
             else:
