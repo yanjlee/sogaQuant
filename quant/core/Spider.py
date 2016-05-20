@@ -2,6 +2,7 @@
 import os
 import urllib2
 import re
+import gc
 from quant.core.Worker import *
 from quant.core.Abstract import *
 WORKER = 8
@@ -70,22 +71,26 @@ class SpiderEngine(Abstract):
         cookie = cookielib.CookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
         urllib2.install_opener(opener)
-        req = urllib2.Request(url=url, headers=headers)
+        req = urllib2.Request(url=url)
 
         try:
-            data = urllib2.urlopen(req)
-            data = data.read()
+            gc.enable()
+            #gc.set_debug(gc.DEBUG_LEAK)
+            req = urllib2.urlopen(req)
+            data = req.read()
             if ch == 'gbk':
                 data = data.decode("gbk", 'ignore')
             elif ch == 'utf8':
                 data = data.decode("utf-8")
+            req.close()
+            del req
+            gc.collect()
             return data
 
         except IOError, e:
             print e
             #if(e.code == 404):
             #    return False
-
 
     def sPost(self, url, postdata={}, cookies={}, ch='gbk', bt='solomon'):
         bots = {"baidu": "Baiduspider+(+http://www.baidu.com/search/spider.htm)", 'google': "Googlebot/2.1 (+http://www.google.com/bot.html)", 'solomon': "Solomon Net Vampire/1.0"}

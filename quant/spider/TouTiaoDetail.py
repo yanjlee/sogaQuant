@@ -26,7 +26,7 @@ class TouTiaoDetailSpider(SpiderEngine):
         mysql = sMysql(quncms_db['host'], quncms_db['user'], quncms_db['password'], quncms_db['dbname'])
         i = 0
         while 1:
-            if i > 20:
+            if i > 50:
                 break
             data = mysql.fetch_one("select * from video_contents where is_done=0")
             if data is None:
