@@ -14,6 +14,7 @@ import hashlib
 
 class WdspiderPipeline(object):
     def __init__(self):
+        self.mysql = sMysql('127.0.0.1', 'root', settings['PASSWORD'], 'we_center')
         pass
 
     def open_spider(self, spider):
@@ -31,14 +32,14 @@ class WdspiderPipeline(object):
 
         if "WdspiderItem" in item.__class__.__name__:
             stools = sTools()
-            mysql = sMysql('127.0.0.1', 'root', '1234asdf', 'we_center')
+
             _hash = hashlib.md5(item['callback']).hexdigest()
-            _has = mysql.getRecord("select * from  spider_urls where hash='%s'" % _hash, 1)
+            _has = self.mysql.getRecord("select * from  spider_urls where hash='%s'" % _hash, 1)
             indata = {'url': item['callback'], 'hash': _hash}
 
             print indata
             if _has is None:
-                mysql.dbInsert('spider_urls', indata)
+                self.mysql.dbInsert('spider_urls', indata)
             else:
                 print "This Url exists....."
                 return False
