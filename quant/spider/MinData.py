@@ -3,7 +3,6 @@ import sys
 import logging
 import pymongo
 import hashlib
-import memcache
 import time
 from quant.core.Spider import *
 
@@ -11,11 +10,13 @@ from quant.core.Spider import *
 class MinDataSpider(SpiderEngine):
     '''
     分钟数据下载
+    选出龙头板块
+    获取股票的主题
+    取最近涨幅，成交量大的
     '''
     def __init__(self):
         SpiderEngine.__init__(self)
         self.today = sys.argv[2]
-        self.mc = memcache.Client(MEMCACHE_HOST)
 
     def get_info(self, s_code):
         #self.get_minute_from_qq(s_code)

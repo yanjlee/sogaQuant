@@ -3,7 +3,6 @@ import sys
 import time
 import datetime
 import logging
-import memcache
 import pandas
 from quant.core.Spider import *
 
@@ -15,7 +14,6 @@ class LhbDataSpider(SpiderEngine):
     def __init__(self):
         SpiderEngine.__init__(self)
         self.today = sys.argv[2]
-        self.mc = memcache.Client(MEMCACHE_HOST)
 
     def get_info(self, yyb_id):
         self.get_daily_detail(yyb_id, sys.argv[2])
@@ -35,8 +33,9 @@ class LhbDataSpider(SpiderEngine):
         day_list = self.mysql.getRecord("SELECT * FROM s_lhb_days WHERE status=0 and dateline=%s" % sys.argv[2])
        # datas = []
         for i in range(0, len(day_list)):
-            self.get_daily_detail(day_list[i]['s_code'], sys.argv[2])
-
+            self.get_daily_jqk_detail(day_list[i], sys.argv[2])
+            #time.sleep(5)
+        '''
         logging.debug('Start Daily Lhb=====New YYB:%s ' % sys.argv[2])
         sql_data = "select yyb_id from s_lhb_days_detail where 1 group by yyb_id"
         tmpdf = pandas.read_sql(sql_data, self.mysql.db)
@@ -51,18 +50,135 @@ class LhbDataSpider(SpiderEngine):
                 continue
             if xd[0] not in has:
                 self.get_yyb_data(xd[0])
+        '''
 
-    def get_daily_detail(self, s_code, dateline):
+    def get_daily_jqk_detail(self, s_data, dateline):
+        s_code = s_data['s_code']
+        d = datetime.datetime.strptime(dateline, "%Y%m%d")
+        days = self.tools.d_date('%Y-%m-%d', time.mktime(d.timetuple()))
+        url = "http://data.10jqka.com.cn/market/lhbcjmx/code/%s/date/%s/ajax/1" % (s_code[2:10], days)
+        url = "http://data.10jqka.com.cn/market/lhbcjmx/code/603779/date/2016-05-16/ajax/1"
+
+        logging.debug('Detail=====:%s ' % url)
+        _data = self.sGet(url)
+        _tr = self.sMatch(u'成交量：', u"总成交金额：", _data, 1)
+        if _tr is None:
+            return 1
+        _td = self.sMatch(u'涨跌幅：', u'换手率：', _data, 1)
+        _tp = self.sMatch(u'总成交金额：', u'万元', _data, 1)
+        _hands = _tr[0].replace(u'万股', '')
+        _hands = _hands.replace(' ', '')
+        _hands = float(_hands)*10000
+        _h_p = _tp[0].replace(' ', '')
+        _h_p = float(_h_p)*10000
+        indata = {
+            'v_hands': _hands,
+            'ud': _td[0],
+            'volume': _h_p,
+            'status': 1
+        }
+        code = s_code.lower()
+        _where = " dateline=%s AND s_code='%s'" % (dateline, code)
+        #self.mysql.dbUpdate('s_lhb_days', indata, _where)
+        #print indata
+        _f_table = self.sMatch('<table class="m_table">', '<\/table>', _data, 0)
+
+        _xx_1 = self.sMatch('<tr(.*?)>', "<\/tr>", _f_table[0], 0)
+        #print _xx_1[8]
+        #sys.exit()
+        #self.__format_datail2(dateline, s_code, _xx_1, 'B', 2, 1)
+        #self.__format_datail2(dateline, s_code, _xx_1, 'B', 3, 2)
+
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 4, 3)
+        '''
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 5, 4)
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 6, 5)
+
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 8, 1)
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 9, 2)
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 10, 3)
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 11, 4)
+        self.__format_datail2(dateline, s_code, _xx_1, 'B', 12, 5)
+        '''
+        #sys.exit()
+
+    def __format_datail2(self, dateline, code, html, o_type='B', i=0, sort=1):
+        yyb_id = 8888
+        if len(html) <= i:
+            return False
+        tdhtml = self.sMatch('<td(.*?)>', "<\/td>", html[i][1], 0)
+        print html[i]
+        sys.exit()
+        #print tdhtml
+        #print tdhtml[1][1]
+
+        if tdhtml[1][1].find(u'机构专用') < 0:
+            _c1 = self.sMatch('<a(.*?)>', '<\/a>', tdhtml[1][1], 0)
+            if len(_c1) == 0:
+                return False
+            yyb_id = self.__find_yyb_id(_c1[0][1])
+
+        _B = self.tools.strip_tags(tdhtml[2][1])
+        if _B == '-':
+            _B = 0
+
+        _S = self.tools.strip_tags(tdhtml[4][1])
+        if _S == '-':
+            _S = 0
+        _in_data = {
+            'type': o_type,
+            'dateline': dateline,
+            's_code': code,
+            'yyb_id': yyb_id,
+            'B_volume': float(_B) * 10000,
+            'B_p': self.tools.strip_tags(tdhtml[3][1]),
+            'S_volume': float(_S) * 10000,
+            'S_p': self.tools.strip_tags(tdhtml[5][1]),
+            's_sort': sort
+        }
+        print _in_data
+        #sys.exit()
+        self.mysql.dbInsert('s_lhb_days_detail', _in_data)
+        return _in_data
+
+    def __find_yyb_id(self, name):
+        day_list = self.mysql.fetch_one("SELECT * FROM s_lhb WHERE name='%s'" % name)
+        if day_list is not None:
+            return day_list['codex']
+        else:
+            res = {
+                'codex': 1,
+                'name': name,
+                'province': '',
+                'city': ''
+            }
+            self.mysql.dbInsert('s_lhb', res)
+            return 1
+
+    def get_daily_detail(self, s_data, dateline):
+        s_code = s_data['s_code']
         d = datetime.datetime.strptime(dateline, "%Y%m%d")
         days = self.tools.d_date('%Y-%m-%d', time.mktime(d.timetuple()))
         url = "http://data.eastmoney.com/stock/lhb,%s,%s.html" % (days, s_code[2:10])
         #url = "http://data.eastmoney.com/stock/lhb,2016-03-30,000534.html"
         logging.debug('Detail=====:%s ' % url)
         _data = self.sGet(url)
-
+        #self.tools.sWrite(_data, '/tmp/abc.log')
+        #return 1
+        #out_put = '/usr/bin/php /htdocs/quant/c.php %s' % base64.b64encode(url)
+        #print out_put
+        #_data = commands.getoutput(out_put)
+        #print _data
         _tr = self.sMatch(u'成交量：', u"成交金额：", _data, 1)
         _td = self.sMatch(u'涨跌幅：', u'成交量：', _data, 1)
+        log_file = '/Users/solomon/Downloads/%s.log' % days
 
+        if _tr is None:
+            self.tools.sWrite(_data, log_file)
+            self.mysql.dbUpdate('s_lhb_days', {'status': 1}, "id=%s" % s_data['id'])
+            return 1
+        #print _tr
+        #sys.exit()
         if _tr is not None:
             _hands = _tr[0].replace(u'万手', '')
             _hands = _hands.replace('&nbsp;', '')
@@ -78,7 +194,6 @@ class LhbDataSpider(SpiderEngine):
                 'ud': ud,
                 'status': 1
             }
-
             _where = " dateline=%s AND s_code='%s'" % (dateline, code)
             self.mysql.dbUpdate('s_lhb_days', indata, _where)
 
@@ -166,9 +281,9 @@ class LhbDataSpider(SpiderEngine):
         days = self.tools.d_date('%Y-%m-%d', time.mktime(d.timetuple()))
         #url = "http://data.eastmoney.com/stock/lhb/%s.html" % days
         #url = 'http://data.eastmoney.com/stock/tradedetail.html'
-        url = 'http://data.eastmoney.com/DataCenter_V3/stock2016/TradeDetail/pagesize=200,page=1,sortRule=-1,sortType=,startDate=%s,endDate=%s,gpfw=0,js=var data_tab_1.html' % (days, days)
+        #url = 'http://data.eastmoney.com/DataCenter_V3/stock2016/TradeDetail/pagesize=200,page=1,sortRule=-1,sortType=,startDate=%s,endDate=%s,gpfw=0,js=var data_tab_1.html' % (days, days)
         #url = 'http://data.eastmoney.com/'
-        url = 'http://data.10jqka.com.cn/market/longhu/'
+        url = 'http://data.10jqka.com.cn/market/longhu/date/%s/' % days
         logging.debug('GetUrl:%s ' % url)
 
         _data = self.sGet(url)

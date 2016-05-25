@@ -16,9 +16,6 @@ class IndexSpider(SpiderEngine):
         self.today = sys.argv[2]
 
     def run(self):
-        #self.get_history_data()
-        #return
-        #print sys.argv
         self.tools.setup_logging(sys.argv[1], True, True)
 
         logging.debug('Start Daily 000001 & 399006 Data=====Days:%s ' % sys.argv[2])

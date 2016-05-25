@@ -57,22 +57,6 @@ def get_stock_mintue2(params):
     return arr
 
 
-#龙虎榜
-'''
-def get_day_lhb(params):
-    arr = {}
-    arr['sql'] = "SELECT s_code FROM s_lhb_days WHERE status=0"
-    if(sTools.val(params)):
-        arr['sql'] += " AND dateline="+params
-
-    arr['limit'] = 15
-    arr['run_script'] = "php /htdocs/soga/trader/index.php Lhb code_detail %s "
-    #arr['run_func'] = 'run_php_worker'
-    arr['ext'] = params
-    return arr
-'''
-
-
 #每日收盘竞价
 def get_multi_close_data(params):
     id = 0
