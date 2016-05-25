@@ -11,7 +11,6 @@ import time
 import logging
 import logging.handlers
 from datetime import *
-from quant.settings import *
 '''
 __all__ = [
     'sWrite',
@@ -23,6 +22,7 @@ __all__ = [
 ]
 '''
 DOT = frozenset('.')
+JOB_LOGS_DIRECTORY = '/home/wwwlogs/python'
 
 
 class sTools:

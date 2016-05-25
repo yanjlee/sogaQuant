@@ -6,8 +6,6 @@ import time
 from quant.spider.MinData import *
 from quant.spider.LhbData import *
 from quant.spider.Index import *
-from quant.spider.WeiXin import *
-from quant.spider.Fund import *
 from quant.spider.TouTiao import *
 from quant.spider.TouTiaoDetail import *
 
