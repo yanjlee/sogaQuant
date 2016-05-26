@@ -22,7 +22,7 @@ __all__ = [
 ]
 '''
 DOT = frozenset('.')
-JOB_LOGS_DIRECTORY = '/home/wwwlogs/python'
+JOB_LOGS_DIRECTORY = '/tmp/python'
 
 
 class sTools:
