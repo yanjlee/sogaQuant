@@ -13,7 +13,7 @@ class DailyStrongSelecter(Selecter):
     def run(self):
         today_select = self.todayDF[self.todayDF.high > 5]
         res = []
-        tofile = DAILY_STRONG_LOG % self.tools.d_date('%Y%m%d')
+        tofile = self.config['daily_log'] % self.tools.d_date('%Y%m%d')
         fp = open(tofile, 'a+')
 
         for code in today_select.values:

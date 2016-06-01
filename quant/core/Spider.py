@@ -9,6 +9,9 @@ WORKER = 8
 
 
 class SpiderEngine(Abstract):
+    '''
+    spider基类
+    '''
     ref = ''
 
     #def __init__(self):

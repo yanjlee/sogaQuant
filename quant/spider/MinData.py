@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import logging
-import pymongo
+import memcache
 import hashlib
 import time
 from quant.core.Spider import *
@@ -31,10 +31,12 @@ class MinDataSpider(SpiderEngine):
         logging.debug('save debug ')
         logging.warn('save warning ')
         return 1
-        '''
+
         MONGO_IP = '127.0.0.1'
         client = pymongo.MongoClient(MONGO_IP, 27017)
         self.mango_db = client.spider
+        '''
+        self.mc = memcache.Client(['127.0.0.1:11211'])
 
         while not self.interrupted:
             block_time = int(self.tools.d_date('%H%M%S'))
@@ -74,9 +76,9 @@ class MinDataSpider(SpiderEngine):
                 indata['price'] = tmp[1]
                 indata['volumes'] = tmp[2]
                 indata['hash'] = hashlib.md5(word).hexdigest()
-                #self.mysql.dbInsert('s_stock_minute', indata)
-                self.mango_db.run_time.insert(indata)
-                self.mc.set(str(word), 1, 86400*2)
+                self.mysql.dbInsert('s_stock_minute', indata)
+                #self.mango_db.run_time.insert(indata)
+                self.mc.set(str(word), 1, 86400)
 
     def get_minute_from_qq(self, s_code):
         url = "http://data.gtimg.cn/flashdata/hushen/minute/%s.js" % s_code

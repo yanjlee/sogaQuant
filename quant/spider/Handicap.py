@@ -1,29 +1,36 @@
 # -*- coding: utf-8 -*-
-'''
-Tdx分时异动
-'''
-#import sys
-import pymongo
 import hashlib
+import commands
 from datetime import date, datetime
 from quant.core.Spider import *
 
 
-class RuntimeSpider(SpiderEngine):
+class HandicapSpider(SpiderEngine):
 
-    def get_data(self):
-        MONGO_IP = '192.168.5.106'
-        URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600836,sz300190'
-        client = pymongo.MongoClient(MONGO_IP, 27017)
-        db = client.spider
+    def run(self, mysql, mcache):
+        vid = int(sys.argv[2])
+        out_put = '/usr/bin/php /htdocs/quant/soga/stock.php %s' % vid
+        _data = commands.getoutput(out_put)
 
-        data = self.sGet(URL, 'utf8', 'de')
+        URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=%s' % _data
+        #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600832'
+        #MONGO_IP = '127.0.0.1'
+        #client = pymongo.MongoClient(MONGO_IP, 27017)
+        #db = client.spider
+
+        data = self.sGet(URL, 'utf-8')
         data = data.split('";')
 
         l = len(data)
-        resx = []
         for i in range(0, l-1):
+            if len(data[i]) < 30:
+                continue
             res = data[i].split(',')
+            #print res[8]
+            #sys.exit()
+            if int(res[8]) == 0:
+                continue
+            #sys.exit()
             #continue
             _tmp = res[0].split('=')
             xcode = _tmp[0].replace('var hq_str_', '')
@@ -56,7 +63,13 @@ class RuntimeSpider(SpiderEngine):
             item['min_sec'] = res[31].replace(':', '')
             a = item.values()
             word = '-'.join(a)
-            item['hash'] = hashlib.md5(word).hexdigest()
-            resx.append(item)
 
-        db.run_time.insert(resx)
+            item['hash'] = hashlib.md5(word).hexdigest()
+            has = mcache.get(item['hash'])
+            if has:
+                continue
+            mcache.set(item['hash'], 1, 86400)
+            #print item
+            #sys.exit()
+            #resx.append(item)
+            mysql.dbInsert('s_stock_runtime', item)

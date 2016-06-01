@@ -8,10 +8,8 @@ from quant.selecter.Dma import *
 from quant.selecter.DailyTrend import *
 
 #from quant.core.Spider import SpiderEngine
-from elasticsearch import Elasticsearch
-
-from quant.spider.Thematic import *
-es = Elasticsearch(host="localhost", port="9200")
+#from elasticsearch import Elasticse
+#es = Elasticsearch(host="localhost", port="9200")
 
 
 def main_test():
@@ -30,16 +28,6 @@ def main_test():
     b.run()
 
 
-def main_spider():
-    '''
-    a = SpiderEngine()
-    data = ['echo $PATH', 'php -v']
-    a.run_php_worker(data)
-    '''
-    a = ThematicSpider()
-    a.get_eastmoney_block()
-
-
 def main_killer():
 
     setting = {}
@@ -52,7 +40,7 @@ def main_killer():
 
 def main_dailyStrong(end):
     setting = {}
-    setting['start'] = '20160310'
+    setting['start'] = '20160510'
     setting['end'] = end
     setting['limit'] = 3
     b = DailyStrongSelecter('phkiller', setting)

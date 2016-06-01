@@ -6,7 +6,9 @@ from quant.core.Stats import *
 
 
 class Average(StatsEngine):
-
+    '''
+    复权后的均线计算
+    '''
     def __init__(self, args):
         StatsEngine.__init__(self)
         self.args = args

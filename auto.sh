@@ -14,21 +14,28 @@ echo "Stock Index done.\n"
 python daily.py get_lhb_data $TODAY
 echo "LHB stock list done.\n"
 
-python daily.py get_limit $TODAY
+python daily.py summary_report $TODAY
 echo "Stock Day_Report done.\n"
 
-python daily.py count_lhb_data $TODAY
+#python daily.py count_lhb_data $TODAY
 
-python multi.py get_multi_close_data $TODAY
-echo "Stock daily closing Bid.\n"
+#python multi.py get_multi_close_data $TODAY
+#echo "Stock daily closing Bid.\n"
 
-python daily.py get_average $TODAY
+python daily.py summary_average $TODAY
+echo "Average & MA_count Done."
 
-python daily.py get_macount $TODAY
-echo "MA_count Done."
+#python daily.py get_macount $TODAY
+#echo "MA_count Done."
 
 
 #runtime
-#python daily.py get_change 20160320
-#python daily.py get_min_data
+#python realtime.py while_change
+#python realtime.py get_min_data
+
+
+#python realtime.py get_five_sb 1
+#python realtime.py get_five_sb 2
+#python realtime.py get_five_sb 3
+#python realtime.py get_five_sb 4
 

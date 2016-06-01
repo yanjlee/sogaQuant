@@ -6,10 +6,6 @@ from quant.tools.Util import sTools
 from quant.core.Spider import SpiderEngine
 
 
-def mulit_test(params):
-    print spider
-
-
 def run_worker_template(params):
     id = 0
     while True:

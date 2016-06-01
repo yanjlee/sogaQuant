@@ -30,3 +30,7 @@ class Abstract(object):
     def file2dict(self, path):
         with open(path) as f:
             return json.load(f)
+
+    def run_php(self, path):
+        cmd = 'php /htdocs/quant/soga/mv/index.php %s' % path
+        os.system(cmd)

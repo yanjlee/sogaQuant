@@ -3,7 +3,7 @@ from decimal import Decimal
 from quant.core.Stats import *
 
 
-class LimitList(StatsEngine):
+class Summary(StatsEngine):
 
     def __init__(self, args):
         StatsEngine.__init__(self)

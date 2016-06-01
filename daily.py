@@ -3,7 +3,6 @@ import os
 import sys
 import time
 
-from quant.spider.MinData import *
 from quant.spider.LhbData import *
 from quant.spider.Index import *
 from quant.spider.TouTiao import *
@@ -11,11 +10,11 @@ from quant.spider.TouTiaoDetail import *
 
 from quant.stats.ElSearch import *
 from quant.stats.Average import *
-from quant.stats.LimitList import *
 from quant.stats.MaCount import *
-from quant.stats.RunTimeChange import *
+from quant.stats.Summary import *
+
 from quant.stats.TdxAnalyse import *
-from quant.stats.LhbCount import *
+#from seleninum import webdriver
 
 
 def get_tdx(indate):
@@ -30,17 +29,10 @@ def get_factor(abc):
 
 
 def get_video(abc):
-    #while True:
-        #block_time = int(self.tools.d_date('%H%M%S'))
-        #os.system(' /bin/bash /htdocs/quant/soga/wdSpider/a.sh')
     TouTiaoSpider().run()
-    #time.sleep(60)
 
 
 def get_video_info(abc):
-    #while True:
-        #block_time = int(self.tools.d_date('%H%M%S'))
-        #os.system(' /bin/bash /htdocs/quant/soga/wdSpider/a.sh')
     TouTiaoDetailSpider().run()
 
 
@@ -49,31 +41,15 @@ def get_es(abc):
     a.run()
 
 
-def get_average(abc):
-    a = Average(sys.argv)
-    a.run()
+def summary_average(abc):
+    #均线统计
+    Average(sys.argv).run()
+    MaCount(sys.argv).run()
 
 
-def get_limit(abc):
-    a = LimitList(sys.argv)
-    a.run()
-
-
-def get_macount(abc):
-    a = MaCount(sys.argv)
-    a.run()
-
-
-#20分钟一次获取各股的长跌幅
-def get_min_data(abc):
-    s = MinDataSpider()
-    s.run()
-
-
-#5分钟一次获取各股的长跌幅
-def get_change(abc):
-    a = RunTimeChange(sys.argv)
-    a.run()
+def summary_report(abc):
+    #每日上涨下跌、开板等数据统计
+    Summary(sys.argv).run()
 
 
 def get_lhb_data(abc):
@@ -84,33 +60,8 @@ def get_index_data(abc):
     IndexSpider().run()
 
 
-def count_lhb_data(abc):
-    LhbCount(sys.argv).run()
-
-
-def get_wx_data(abc):
-
-    WeiXinSpider().run()
-
-
 def get_fund_data(abc):
     FundSpider().run()
-
-
-def get_wd_data(abc):
-    #wd
-    #QuestionSpider().run()
-    from elasticsearch import Elasticsearch
-    es = Elasticsearch(host='172.16.11.240', port=9200)
-    doc = {
-        'request_url': 'http://www.baidu.com',
-        'request_query': 22,
-        'reponse_result': 22,
-        'start_time': '2016-04-26 10:00'
-
-    }
-    es.index(index="yrb", doc_type='info', id=1, body=doc)
-    es.indices.refresh(index="yrb")
 
 
 class Job:

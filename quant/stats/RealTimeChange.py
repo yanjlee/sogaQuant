@@ -4,8 +4,10 @@ import datetime
 from quant.core.Stats import *
 
 
-class RunTimeChange(StatsEngine):
-
+class RealTimeChange(StatsEngine):
+    '''
+    每5分钟获取一次当日开盘个股涨跌,用于观察市场整体热度
+    '''
     def __init__(self, args):
         StatsEngine.__init__(self)
         self.args = args
@@ -13,14 +15,23 @@ class RunTimeChange(StatsEngine):
     def run(self):
         print self.args
         today = self.tools.d_date('%Y%m%d')
+
         while True:
+            '''
             block_time = int(self.tools.d_date('%H%M%S'))
             if (block_time > 113000 and block_time < 130000) or block_time > 153000 or block_time < 93000:
                 print "%s====Market Close;" % block_time
                 time.sleep(120)
                 continue
+            '''
+            is_opening = self.is_opening()
+            if is_opening is False:
+                print "RealTimeChange===Market Close===%s===;" % self.tools.d_date('%H%M%S')
+                time.sleep(120)
+                continue
 
-            os.system('php /htdocs/soga/trader/index.php Base daily_stock_list')
+            #os.system('php /htdocs/quant/soga/mv/index.php Base daily_stock_list')
+            self.run_php('Base daily_stock_list')
             _st_data = self.mysql.getRecord("select chg from s_stock_list where dateline= %s" % today)
             unixtime = datetime.datetime.now().strftime("%s")
             print block_time
