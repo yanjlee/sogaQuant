@@ -6,7 +6,9 @@ from quant.core.Spider import *
 
 
 class HandicapSpider(SpiderEngine):
-
+    '''
+    5档盘口
+    '''
     def run(self, mysql, mcache):
         vid = int(sys.argv[2])
         out_put = '/usr/bin/php /htdocs/quant/soga/stock.php %s' % vid

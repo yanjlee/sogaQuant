@@ -45,9 +45,10 @@ class TouTiaoDetailSpider(SpiderEngine):
                 html = self.sGet(url, 'utf-8')
                 #print html
                 tag = self.sMatch('tt-videoid="', '"', html, 0)
-                print tag
+                #print tag
+                #sys.exit()
                 if len(tag) == 0:
                     mysql.dbQuery("DELETE FROM video_contents where itemid=%s" % data['itemid'])
                 else:
-                    up = {'video_id': tag[0]}
+                    up = {'video_id': tag[0], 'is_done': 1}
                     mysql.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
