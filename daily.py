@@ -7,6 +7,7 @@ from quant.spider.LhbData import *
 from quant.spider.Index import *
 from quant.spider.TouTiao import *
 from quant.spider.TouTiaoDetail import *
+from quant.spider.Stock import *
 
 from quant.stats.ElSearch import *
 from quant.stats.Average import *
@@ -62,6 +63,10 @@ def get_index_data(abc):
 
 def get_fund_data(abc):
     FundSpider().run()
+
+
+def get_base_data(abc):
+    StockSpider().run()
 
 
 class Job:

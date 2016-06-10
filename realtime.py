@@ -7,6 +7,7 @@ from quant.spider.Handicap import *
 from quant.core.DB import sMysql
 
 from quant.stats.RealTimeChange import *
+from quant.stats.SecondDraw import *
 
 
 def __read_config():
@@ -47,6 +48,10 @@ def get_min_data(abc):
 def while_change(abc):
     #5分钟一次获取各股的涨跌幅
     RealTimeChange(sys.argv).run()
+
+
+def demo(abc):
+    SecondDrawStats(sys.argv).run()
 
 
 if __name__ == '__main__':

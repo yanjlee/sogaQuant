@@ -34,7 +34,7 @@ class RealTimeChange(StatsEngine):
             self.run_php('Base daily_stock_list')
             _st_data = self.mysql.getRecord("select chg from s_stock_list where dateline= %s" % today)
             unixtime = datetime.datetime.now().strftime("%s")
-            print block_time
+            #print block_time
             for row in _st_data:
                 chg = row['chg']
 

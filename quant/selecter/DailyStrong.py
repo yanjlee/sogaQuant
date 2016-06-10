@@ -1,20 +1,28 @@
 #! -*- coding:utf-8 -*-
 from quant.core.Selecter import *
+#from __future__ import division
 
 
 class DailyStrongSelecter(Selecter):
     '''
     N天涨幅超过25%
     '''
-    def __init__(self, name, setting):
-        Selecter.__init__(self, name, setting)
+    def __init__(self, setting):
+        Selecter.__init__(self, setting)
         self.setting = setting
 
     def run(self):
         today_select = self.todayDF[self.todayDF.high > 5]
+
         res = []
-        tofile = self.config['daily_log'] % self.tools.d_date('%Y%m%d')
-        fp = open(tofile, 'a+')
+        result = []
+        #tofile = self.config['daily_log'] % self.tools.d_date('%Y%m%d')
+        #fp = open(tofile, 'a+')
+        if self.today != self.lastDay:
+            sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name,amount,run_market FROM s_stock_trade WHERE dateline=%s " % self.today
+            tmpdf = pandas.read_sql(sql_data, self.mysql.db)
+        else:
+            tmpdf = []
 
         for code in today_select.values:
             item = self.format_code(code)
@@ -41,12 +49,18 @@ class DailyStrongSelecter(Selecter):
                 up_precent = ((item['high'] - mark_day.iloc[0].low)/mark_day.iloc[0].low)*100
 
                 #if up_precent >= 20 and item['chg'] > 0:
-                if up_precent >= 20:
+                if up_precent >= 24:
                     #print up_precent
                     res.append([code[0], str(code[2]), str(up_precent)])
-                    print "%s,%s,strong,%s,%s," % (item['s_code'], item['name'], item['chg'], int(up_precent))
-                    loc = 0
-                    if item['s_code'][0:2] == 'sh':
-                        loc = 1
-                    zxb = str(loc) + str(item['code']) + "\r\n"
-                    fp.write(zxb)
+                    result.append(item['s_code'])
+                    curr = ''
+                    if len(tmpdf):
+                        curr = tmpdf[tmpdf.s_code == item['s_code']]
+                        curr = curr.iloc[0].chg
+                    print "%s==%s==%s====%s====%s=" % (item['s_code'], item['name'], item['chg'], int(up_precent), curr)
+                    #loc = 0
+                    #if item['s_code'][0:2] == 'sh':
+                    #    loc = 1
+                    #zxb = str(loc) + str(item['code']) + "\r\n"
+                    #fp.write(zxb)
+        return result

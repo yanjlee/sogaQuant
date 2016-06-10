@@ -6,10 +6,11 @@ from quant.selecter.Wpkiller import *
 from quant.selecter.DailyStrong import *
 from quant.selecter.Dma import *
 from quant.selecter.DailyTrend import *
+from quant.selecter.RealVolumeRate import *
 
-#from quant.core.Spider import SpiderEngine
 #from elasticsearch import Elasticse
 #es = Elasticsearch(host="localhost", port="9200")
+from quant.tools.Util import sTools
 
 
 def main_test():
@@ -24,32 +25,63 @@ def main_test():
     # 策略类型，'d'表示日间策略使用日线回测，'m'表示日内策略使用分钟线回测
     setting['freq'] = 'd'
 
-    b = DmaSelecter('pxhkiller', setting)
+    b = DmaSelecter(setting)
     b.run()
 
 
-def main_killer():
+def wpKiller(end):
 
     setting = {}
-    setting['start'] = '20160114'
-    setting['end'] = '20160115'
+    setting['start'] = 20160603
+    setting['end'] = end
     setting['limit'] = 3
-    a = WpKillerSelecter('wpkiller', setting)
+    a = WpKillerSelecter(setting)
     a.run()
 
 
-def main_dailyStrong(end):
+def dailyStrong(end):
     setting = {}
-    setting['start'] = '20160510'
+    setting['start'] = '20160530'
     setting['end'] = end
     setting['limit'] = 3
-    b = DailyStrongSelecter('phkiller', setting)
+    b = DailyStrongSelecter(setting)
     b.run()
 
 
-def main_dma(end):
+def RealVolumeRate(end):
     setting = {}
-    setting['start'] = 20150301
+    #setting['start'] = '20160530'
+    setting['end'] = end
+    setting['limit'] = 3
+    b = RealVolumeRateSelecter(setting)
+    b.run()
+
+
+def daily(end):
+    setting = {}
+    setting['start'] = 20160530
+    setting['end'] = end
+    setting['limit'] = 3
+
+    #a = WpKillerSelecter(setting).run()
+    #a = DailyStrongSelecter(setting).run()
+    d = RealVolumeRateSelecter(setting).run()
+
+    tofile = '/htdocs/quant/data/%s.blk' % sTools.d_date('%Y%m%d')
+    fp = open(tofile, 'a+')
+    #d = a + b
+    #d = list(set(d))
+    for i in range(0, len(d)):
+        loc = 0
+        if d[i][0:2] == 'sh':
+            loc = 1
+        zxb = str(loc) + str(d[i][2:10]) + "\r\n"
+        fp.write(zxb)
+
+
+def dma(end):
+    setting = {}
+    setting['start'] = 20160301
     setting['end'] = end
     #setting['universe'] = ['sz300208']
     #setting['universe'] = ['CYB']
@@ -79,7 +111,7 @@ def main_dma(end):
 
     setting['limit'] = 180
     setting['is_open_chuquan'] = True
-    b = DmaSelecter('pxhkiller', setting)
+    b = DmaSelecter(setting)
     b.run()
 
 
@@ -98,6 +130,19 @@ def main_trend():
 
 if __name__ == '__main__':
     #初始化策略类
-    #main_dailyStrong(sys.argv[1])
-    main_dailyStrong(sys.argv[1])
-    #main_dma(sys.argv[1])
+    '''
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('RealVolumeRate', help=u'实时成交与流通盘比率,观察当日热点')
+    parser.set_defaults(func=sys.argv)
+    parser.add_argument('dailyStrong', help=u'N天涨幅超过25%')
+    parser.add_argument('dma', help=u'白线在黄线之上,长期趋势,量度决定速度')
+    parser.add_argument('wpKiller', help=u'跳开，冲高回落')
+    args = parser.parse_args()
+    args.func(args)
+    '''
+    sTools = sTools()
+    print sys.argv
+    if len(sys.argv) > 2:
+        function = eval(sys.argv[1])
+        function(sys.argv[2])

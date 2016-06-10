@@ -29,6 +29,8 @@ class TouTiaoSpider(SpiderEngine):
 
         for i in range(0, len(re['data'])):
             item = {}
+            uid = re['data'][i]['media_url'].replace('http://toutiao.com/m', '')
+            item['uid'] = uid.replace('/', '')
             item['title'] = re['data'][i]['title']
             item['tag'] = re['data'][i]['tag']
             item['image_url'] = re['data'][i]['image_url']

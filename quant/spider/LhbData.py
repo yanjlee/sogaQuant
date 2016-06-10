@@ -32,7 +32,7 @@ class LhbDataSpider(SpiderEngine):
             #time.sleep(5)
 
         logging.debug('Start Daily Lhb=====LhbCount:%s ' % sys.argv[2])
-        self.count_detail()
+        self.count_detail(sys.argv[2])
 
         logging.debug('Start Daily Lhb=====New YYB:%s ' % sys.argv[2])
         sql_data = "select yyb_id from s_lhb_days_detail where 1 group by yyb_id"
@@ -204,9 +204,9 @@ class LhbDataSpider(SpiderEngine):
             if _has is None:
                 self.mysql.dbInsert('s_lhb_days', indata)
 
-    def count_detail(self):
-        print self.args
-        dateline = self.args[2]
+    def count_detail(self, dateline):
+        #print self.args
+        #dateline = self.args[2]
         x = self.mysql.getRecord("SELECT * FROM  `s_lhb_days_detail` WHERE  `dateline` =%s" % dateline)
         _data = {}
         xhash = []

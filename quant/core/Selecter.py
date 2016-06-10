@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import time
 import re
 from quant.core.Abstract import *
 from settings import *
@@ -9,21 +8,9 @@ import pandas
 
 class Selecter(Abstract):
 
-    bk_start = 0
-    bk_end = 0
-
-    listDataHistory = None
-
-    def __init__(self, name, setting):
+    def __init__(self, setting):
         Abstract.__init__(self)
-        self.bk_start = time.clock()
-        print sys.argv
         self.init(setting)
-
-    def __del__(self):
-        self.bk_end = time.clock()
-        time_str = "read: %f s" % (self.bk_end - self.bk_start)
-        print time_str
 
     def format_code(self, code):
         item = {}
@@ -74,16 +61,24 @@ class Selecter(Abstract):
             limit = setting['limit']
 
         _where = []
+        s_keys_list = setting.keys()
+
+        if 'start' not in s_keys_list and 'end' not in s_keys_list:
+            print u"StartTime OR EndTime is Error"
+            sys.exit()
+
+        _today = self.tools.d_date('%Y%m%d')
+        if 'end' not in setting.keys():
+            setting['end'] = _today
+
+        if 'start' not in setting.keys():
+            setting['start'] = setting['end']
+
         if setting['start'] == setting['end']:
             _where.append(" dateline = %s" % setting['end'])
         else:
-            last_day = " dateline = %s" % self.tools.d_date('%Y%m%d')
-            if 'end' in setting.keys():
-                last_day = " dateline <= %s" % setting['end']
-            _where.append(last_day)
-
-            if 'start' in setting.keys():
-                _where.append(" dateline >= %s" % setting['start'])
+            _where.append(" dateline <= %s" % setting['end'])
+            _where.append(" dateline >= %s" % setting['start'])
 
         if 'universe' in setting.keys():
             s_codes = " s_code in(%s)" % self.___set_universe(setting['universe'])
@@ -91,16 +86,16 @@ class Selecter(Abstract):
 
         _wheres = ' AND '.join(_where)
 
-        print "=======截止天数===%s====" % setting['end']
+        print u"=======截止天数===%s====" % setting['end']
 
         date_sql = "select dateline FROM s_opening_day WHERE dateline <=%s order by dateline desc limit %s" % (setting['end'], limit)
         print date_sql
         temp = self.mysql.getRecord(date_sql)
-
+        self.today = _today
         self.lastDay = temp[0]['dateline']
         self.yestoday = temp[1]['dateline']
         pandas.set_option('display.width', 200)
-        sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name FROM s_stock_trade WHERE %s " % _wheres
+        sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name,amount,run_market FROM s_stock_trade WHERE %s " % _wheres
         print sql_data
         tmpdf = pandas.read_sql(sql_data, self.mysql.db)
         #print tmpdf
@@ -181,7 +176,6 @@ class Selecter(Abstract):
             {'start': 0, 'end': 20110429, 'factor': 0.16250029425855292}]}
             '''
         return _chQ
-        #print _chQ
 
     def run(self):
         raise NotImplementedError

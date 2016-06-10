@@ -15,14 +15,16 @@ class HandicapSpider(SpiderEngine):
         _data = commands.getoutput(out_put)
 
         URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=%s' % _data
-        #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600832'
+        #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600836'
         #MONGO_IP = '127.0.0.1'
         #client = pymongo.MongoClient(MONGO_IP, 27017)
         #db = client.spider
-
+        block_time = int(self.tools.d_date('%H%M%S'))
+        print block_time
         data = self.sGet(URL, 'utf-8')
         data = data.split('";')
-
+       # print data
+        #sys.exit()
         l = len(data)
         for i in range(0, l-1):
             if len(data[i]) < 30:
@@ -63,10 +65,13 @@ class HandicapSpider(SpiderEngine):
             item['S_5_volume'] = res[28]
 
             item['min_sec'] = res[31].replace(':', '')
+            item['date_str'] = "%s %s" % (res[30], res[31])
             a = item.values()
             word = '-'.join(a)
 
             item['hash'] = hashlib.md5(word).hexdigest()
+            #print item
+            #sys.exit()
             has = mcache.get(item['hash'])
             if has:
                 continue
@@ -74,4 +79,5 @@ class HandicapSpider(SpiderEngine):
             #print item
             #sys.exit()
             #resx.append(item)
-            mysql.dbInsert('s_stock_runtime', item)
+            table = 's_stock_runtime_%s' % item['dateline']
+            mysql.dbInsert(table, item)

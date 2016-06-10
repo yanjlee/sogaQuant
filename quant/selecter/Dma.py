@@ -95,8 +95,8 @@ _FILTER_5:=((REF(HIGH,1)-REF(LOW,4))/REF(LOW,4))<0.2 AND REF(L,1)<REF(HIGH,2);{å
 XG: _FILTER_0 AND _FILTER_3 AND (_FILTER_1 OR _FILTER_2) AND _FILTER_4 AND _FILTER_5;
 
     '''
-    def __init__(self, name, setting):
-        Selecter.__init__(self, name, setting)
+    def __init__(self, setting):
+        Selecter.__init__(self, setting)
         self.setting = setting
 
     def makeMa(self):
