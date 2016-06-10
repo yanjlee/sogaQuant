@@ -30,7 +30,7 @@ class TouTiaoSpider(SpiderEngine):
         for i in range(0, len(re['data'])):
             item = {}
             uid = re['data'][i]['media_url'].replace('http://toutiao.com/m', '')
-            item['uid'] = uid.replace('/', '')
+            item['user_id'] = uid.replace('/', '')
             item['title'] = re['data'][i]['title']
             item['tag'] = re['data'][i]['tag']
             item['image_url'] = re['data'][i]['image_url']
@@ -42,7 +42,8 @@ class TouTiaoSpider(SpiderEngine):
             item['external_visit_count'] = str(re['data'][i]['external_visit_count'])
             item['digg_count'] = str(re['data'][i]['digg_count'])
             item['create_time'] = str(re['data'][i]['create_time'])
-
+            item['video_id'] = ''
+            item['video_url'] = ''
             _has = mysql.fetch_one("select * from  video_contents where item_id='%s'" % item['item_id'])
             print item
             if _has is None:
