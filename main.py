@@ -83,7 +83,7 @@ def dma(end):
     setting = {}
     setting['start'] = 20160301
     setting['end'] = end
-    #setting['universe'] = ['sz300208']
+    setting['universe'] = ['sh600105']
     #setting['universe'] = ['CYB']
     '''
     query_body = {

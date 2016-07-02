@@ -29,6 +29,10 @@ echo "Average & MA_count Done."
 #echo "MA_count Done."
 
 
+
+#python main.py daily 20160620
+
+#qiniu =======57781======
 #runtime
 #python realtime.py while_change
 #python realtime.py get_min_data
@@ -38,4 +42,12 @@ echo "Average & MA_count Done."
 #python realtime.py get_five_sb 2
 #python realtime.py get_five_sb 3
 #python realtime.py get_five_sb 4
+
+
+#python realtime.py pankou 20160629
+#python realtime.py realtime_pankou 2
+
+#python wx.py get_baidu_words 3
+#python wx.py get_baidu_words 1
+#python wx.py get_baidu_words 2 46195
 

@@ -8,6 +8,7 @@ from quant.core.DB import sMysql
 
 from quant.stats.RealTimeChange import *
 from quant.stats.SecondDraw import *
+from quant.stats.Pankou import *
 
 
 def __read_config():
@@ -53,6 +54,15 @@ def while_change(abc):
 def demo(abc):
     SecondDrawStats(sys.argv).run()
 
+
+def pankou(abc):
+    #对挂单超过2KW的单子进行监控
+    Pankou(sys.argv).run()
+
+
+def realtime_pankou(self):
+    #实时盘口显示,超1KW
+    Pankou(sys.argv).realtime()
 
 if __name__ == '__main__':
     import argparse

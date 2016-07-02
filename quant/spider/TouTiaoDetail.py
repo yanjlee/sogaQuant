@@ -58,33 +58,19 @@ class TouTiaoDetailSpider(SpiderEngine):
 
             self.get_yy_show('mc', 29)
         elif sys.argv[2] == '3':
-            i = 0
-            while 1:
-                if i > 6000:
-                    break
-                data = mysql.fetch_one("select * from video_contents where uid=0")
-                if data is None:
-                    break
+            self.get_vlook_cate_list(1154)
 
-                i += 1
-                url = "http://www.toutiao.com%s" % data['item_seo_url']
-                #
-                print url
-                logging.debug('===%s===url:%s' % (data['itemid'], url))
-                status = urllib.urlopen(url).code
-                if status == 404 or status == 502:
-                    mysql.dbQuery("DELETE FROM video_contents where itemid=%s" % data['itemid'])
-                else:
-                    html = self.sGet(url, 'utf-8')
-
-                    tag = self.sMatch('<a class="name" href="', '"', html, 0)
-                    if len(tag) == 0:
-                        pass
-                    else:
-                        uid = tag[0].replace('http://toutiao.com/m', '')
-                        uid = uid.replace('/', '')
-                        up = {'uid': uid, 'is_done': 1}
-                        mysql.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
+    def get_vlook_cate_list(self, cate_id):
+        url = "http://www.vlook.cn/ajx/n/square/category?cid=%s&scrollSpan=25&no=1&size=5&sid=3&rnd=0.2246547263694343" % cate_id
+        html = self.sGet(url, 'utf-8')
+        _data = json.loads(html)
+        _data = _data['rst']['html']
+        for i in range(0, len(_data)):
+            if len(_data[i]) < 30:
+                continue
+            titles = self.sMatch('<font>', '<\/font>', _data[i], 0)
+            print titles
+            sys.exit()
 
     def get_yy_show(self, vtype, mid):
         self.tools.setup_logging(sys.argv[1], True, True)

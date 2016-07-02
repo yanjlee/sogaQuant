@@ -148,7 +148,7 @@ class SpiderEngine(Abstract):
             text = re.sub(r'<[\/\!]*?[^<>]*?>', '', text)
             text = re.sub(r'/\**?\*/', '', text)
             text = re.sub(r'([\r\n])[\s]+', '', text)
-        #print(text);
+        #print(text)
         return ms.findall(text)
 
     def sTags(self, htmlstr):

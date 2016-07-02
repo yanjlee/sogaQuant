@@ -26,7 +26,7 @@ class Average(StatsEngine):
             #if s_code != 'sh600000':
             #    continue
             self._chQ = self.getChuQuan(s_code)
-            sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name FROM s_stock_trade WHERE s_code ='%s' and dateline >20140101 " % s_code
+            sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name FROM s_stock_trade WHERE s_code ='%s' and dateline >20150101 " % s_code
             print sql_data
             tmpdf2 = pandas.read_sql(sql_data, self.mysql.db)
             tmpdf = tmpdf2.apply(self.format_chuquan_hanlder, axis=1)

@@ -96,7 +96,8 @@ class Selecter(Abstract):
         self.yestoday = temp[1]['dateline']
         pandas.set_option('display.width', 200)
         sql_data = "select s_code,code,dateline,chg_m,chg,open,close,high,low,last_close,name,amount,run_market FROM s_stock_trade WHERE %s " % _wheres
-        print sql_data
+        #print sql_data
+        #sys.exit()
         tmpdf = pandas.read_sql(sql_data, self.mysql.db)
         #print tmpdf
         #sys.exit()
@@ -108,6 +109,8 @@ class Selecter(Abstract):
             self.df = tmpdf.apply(self.format_chuquan_hanlder, axis=1)
         else:
             self.df = tmpdf
+        #print self.df
+        #sys.exit()
         self.todayDF = self.df[self.df.dateline == int(self.lastDay)]
         self.yestodayDF = self.df[self.df.dateline == int(self.yestoday)]
         #sys.exit()
@@ -136,7 +139,7 @@ class Selecter(Abstract):
 
     def getChuQuan(self):
         '''获取历史除权数据,重写open and s_code in('sh600146','sz002527')'''
-        chuQuan = pandas.read_sql("select s_code,dateline,factor from s_stock_fuquan where 1 order by dateline DESC", self.mysql.db)
+        chuQuan = pandas.read_sql("select s_code,dateline,factor from s_stock_fuquan where   1 order by dateline DESC", self.mysql.db)
 
         _chQ = {}
         _fa = 1
@@ -161,6 +164,7 @@ class Selecter(Abstract):
                             if j == len(_select)-1:
                                 _fa *= _select.iloc[j].factor
                                 _chQ[s_code].append({'start': 0, 'end': _select.iloc[j].dateline, 'factor': _fa})
+
             '''
             s_code  dateline  factor
             0  sz002422  20150722  0.4971

@@ -21,7 +21,14 @@ class LhbDataSpider(SpiderEngine):
     def run(self):
         print sys.argv
         self.tools.setup_logging(sys.argv[1], True, True)
-
+        '''
+        #has_yyb = pandas.read_sql("select * from s_lhb where 1", self.mysql.db)
+        x = self.mysql.getRecord("SELECT * FROM  `s_lhb` WHERE  id >4575")
+        for i in range(0, len(x)):
+            print x[i]['id']
+            self.get_yyb_data(x[i]['codex'])
+            #sys.exit()
+        '''
         logging.debug('Start Daily Lhb=====Days:%s ' % sys.argv[2])
         self.daily_lhb(sys.argv[2])
 
@@ -138,17 +145,21 @@ class LhbDataSpider(SpiderEngine):
         url = "http://data.eastmoney.com/stock/lhb/yyb/%s.html" % yyb_id
         logging.debug('GetUrl:%s ' % url)
         _data = self.sGet(url)
-        _xxt = self.sMatch('<div class="tit">', '<\/div>', _data, 0)
+        _xxt = self.sMatch('<title>', '<\/title>', _data, 0)
 
-        _xxt2 = _xxt[0].strip().split(' ')
-        if(_xxt2[0] == u'机构专用'):
+        _xxt2 = _xxt[0].replace('_', '')
+        _xxt2 = _xxt2.replace(u'数据中心', '')
+        _xxt2 = _xxt2.replace(u'东方财富网', '')
+        _xxt2 = _xxt2.replace(' ', '')
+
+        if(_xxt2 == u'机构专用'):
             return False
 
         _has = self.mysql.fetch_one("select * from  s_lhb where codex=%s" % yyb_id)
         _where = "codex=%s" % yyb_id
         res = {
             'codex': yyb_id,
-            'name': _xxt2[0],
+            'name': _xxt2,
             'province': '',
             'city': ''
         }
@@ -237,3 +248,12 @@ class LhbDataSpider(SpiderEngine):
                     'dateline': dateline
                 }
                 self.mysql.dbInsert('s_lhb_daily', indata)
+
+    def get_new_yyb(self):
+        #最新营业部信息
+        for i in range(0, 13):
+            url = "http://data.eastmoney.com/DataCenter_V3/stock2016/BusinessRanking/pagesize=5,page=%s,sortRule=-1,sortType=,startDate=2010-06-26,endDate=2016-06-26,gpfw=0,js=var%20data_tab_1.html?rt=24448439" % i
+            _data = self.sGet(url)
+            re = json.loads(_data)
+            print re
+            sys.exit()

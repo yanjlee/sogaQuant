@@ -27,7 +27,7 @@ class RealTimeChange(StatsEngine):
             is_opening = self.is_opening()
             if is_opening is False:
                 print "RealTimeChange===Market Close===%s===;" % self.tools.d_date('%H%M%S')
-                time.sleep(120)
+                time.sleep(30)
                 continue
 
             #os.system('php /htdocs/quant/soga/mv/index.php Base daily_stock_list')
