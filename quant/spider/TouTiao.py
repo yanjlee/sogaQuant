@@ -161,6 +161,7 @@ class TouTiaoSpider(SpiderEngine):
             uid = self.sMatch('blogId="', '"', _data[i], 0)
             #sys.exit()
             axd = self.tools.strip_tags(titles[0])
+            axd = __clear_html(axd)
             item = {}
             item['vlook_uid'] = uid[0]
             item['source_site'] = 2
@@ -268,3 +269,8 @@ class TouTiaoSpider(SpiderEngine):
                     self.qundb.dbUpdate('video_yy', up, "yy_id=%s" % item['yy_id'])
 
                 logging.debug('%s=====:%s=====%s ' % (action, item['yy_title'], gourl[j]))
+
+    def __clear_html(self, htmlstr):
+        htmlstr = htmlstr.replace('\r\n', '')
+        htmlstr = htmlstr.replace("'", '')
+        return htmlstr
