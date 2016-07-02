@@ -28,8 +28,8 @@ def get_vlook_video():
     TouTiaoSpider().run_vlook()
 
 
-def get_video_info():
-    TouTiaoDetailSpider().run()
+def post_vlook_video():
+    TouTiaoSpider().post_vlook()
 
 
 if __name__ == '__main__':

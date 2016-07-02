@@ -108,6 +108,7 @@ class TouTiaoSpider(SpiderEngine):
         self.__get_vlook_cate_list(1160)
         self.__get_vlook_cate_list(1161)
 
+    def post_vlook(self):
         #发布
         self.run_vlook_post()
 
@@ -145,6 +146,7 @@ class TouTiaoSpider(SpiderEngine):
         html = self.sGet(url, 'utf-8')
         _data = json.loads(html)
         _data = _data['rst']['html']
+        print "=====cate_id:%s======%s===" % (cate_id, len(_data))
         for i in range(0, len(_data)):
             if len(_data[i]) < 30:
                 continue
