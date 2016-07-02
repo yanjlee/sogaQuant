@@ -128,6 +128,7 @@ class TouTiaoSpider(SpiderEngine):
                     break
             if l:
                 up = {'video_url': l, 'is_done': 1}
+                print up
                 self.qundb.dbUpdate('video_contents', up, "itemid=%s" % data[i]['itemid'])
 
     def __get_vlook_cate_list(self, cate_id):
@@ -163,7 +164,7 @@ class TouTiaoSpider(SpiderEngine):
             uid = self.sMatch('blogId="', '"', _data[i], 0)
             #sys.exit()
             axd = self.tools.strip_tags(titles[0])
-            axd = __clear_html(axd)
+            axd = self.__clear_html(axd)
             item = {}
             item['vlook_uid'] = uid[0]
             item['source_site'] = 2
@@ -275,4 +276,5 @@ class TouTiaoSpider(SpiderEngine):
     def __clear_html(self, htmlstr):
         htmlstr = htmlstr.replace('\r\n', '')
         htmlstr = htmlstr.replace("'", '')
+        htmlstr = htmlstr.replace("\\", '')
         return htmlstr
