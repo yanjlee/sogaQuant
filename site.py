@@ -5,11 +5,11 @@ import time
 from quant.spider.TouTiao import *
 from quant.spider.TouTiaoDetail import *
 #weixin
-from quant.spider.WeiXin import *
+#from quant.spider.WeiXin import *
 #baidu
-from quant.spider.Baidu import *
+#from quant.spider.Baidu import *
 
-from quant.spider.Demo import *
+#rom quant.spider.Demo import *
 
 
 def get_tt_video():
