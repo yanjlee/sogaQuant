@@ -5,6 +5,7 @@ import json
 import random
 import datetime
 import httplib
+import urllib
 from quant.core.Spider import *
 
 
