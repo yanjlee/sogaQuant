@@ -102,12 +102,18 @@ class TouTiaoSpider(SpiderEngine):
         tmp = self.qundb.getRecord("select * from video_author where vtype=1")
         vmax = len(tmp)
         while 1:
-            row = self.qundb.fetch_one("select * from video_author where id=%s" % i)
+            row = self.qundb.fetch_one("select * from video_author where id='%s'" % i)
             if i > vmax:
                 break
             i += 1
             if row is None:
                 continue
+
+            status = urllib.urlopen(row['media_url']).code
+            if status == 404 or status == 502:
+                self.qundb.dbQuery("DELETE FROM video_author where id='%s'" % i)
+                continue
+
             uid = row['media_url'].replace('http://toutiao.com/m', '')
             uid = uid.replace('/', '')
             _data = self.sGet(row['media_url'], 'utf-8')
