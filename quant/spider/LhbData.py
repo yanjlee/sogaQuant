@@ -21,7 +21,7 @@ class LhbDataSpider(SpiderEngine):
     def run(self):
         print sys.argv
         self.tools.setup_logging(sys.argv[1], True, True)
-
+        '''
         day_list = self.mysql.getRecord("SELECT * FROM s_lhb WHERE 1")
         for i in range(520, len(day_list)):
             print "====%s" % i
@@ -33,6 +33,7 @@ class LhbDataSpider(SpiderEngine):
 
         sys.exit()
         return True
+        '''
 
         logging.debug('Start Daily Lhb=====Days:%s ' % sys.argv[2])
         self.daily_lhb(sys.argv[2])
@@ -46,7 +47,7 @@ class LhbDataSpider(SpiderEngine):
         logging.debug('Start Daily Lhb=====LhbCount:%s ' % sys.argv[2])
         self.count_detail(sys.argv[2])
 
-        self.get_city_yyb()
+        #self.get_city_yyb()
         return True
 
         '''

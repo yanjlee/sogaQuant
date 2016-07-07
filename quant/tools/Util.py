@@ -176,6 +176,8 @@ class sTools:
         re_h = re.compile('</?\w+[^>]*>')
         re_comment = re.compile('<!--[^>]*-->')
         htmlstr = htmlstr.replace('\r\n', '')
+        htmlstr = htmlstr.replace('\t', '')
+        htmlstr = htmlstr.replace('\n', '')
         s = re_cdata.sub('', htmlstr)
         s = re_script.sub('', s)
         s = re_style.sub('', s)
