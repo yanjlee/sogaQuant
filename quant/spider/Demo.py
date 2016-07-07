@@ -20,8 +20,16 @@ class DemoSpider(SpiderEngine):
         self.tools.setup_logging(sys.argv[1], True, True)
 
         logging.debug('Start Daily 000001 & 399006 Data=====Days:%s ' % sys.argv[2])
-        quncms_db = self.config['mysql']['quncms']
-        self.mysql2 = sMysql(quncms_db['host'], quncms_db['user'], quncms_db['password'], quncms_db['dbname'])
+        #quncms_db = self.config['mysql']['quncms']
+        #self.mysql2 = sMysql(quncms_db['host'], quncms_db['user'], quncms_db['password'], quncms_db['dbname'])
+        self.xxx()
+
+    def xxx(self):
+        d = self.mysql.getRecord("SELECT * FROM  `s_stock_list` WHERE  dateline=20160705")
+        for i in xrange(0, len(d)):
+            cc = self.mysql.getRecord("SELECT * FROM  `s_stock_trade` WHERE  dateline>20151201 and dateline <20160705 and s_code='%s'" % d[i]['s_code'])
+            if len(cc) < 30:
+                print "===%s===%s=" % (d[i]['s_code'], d[i]['name'])
 
     def shtic_data(self):
         i = 9874

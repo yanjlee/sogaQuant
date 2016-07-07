@@ -21,14 +21,19 @@ class LhbDataSpider(SpiderEngine):
     def run(self):
         print sys.argv
         self.tools.setup_logging(sys.argv[1], True, True)
-        '''
-        #has_yyb = pandas.read_sql("select * from s_lhb where 1", self.mysql.db)
-        x = self.mysql.getRecord("SELECT * FROM  `s_lhb` WHERE  id >4575")
-        for i in range(0, len(x)):
-            print x[i]['id']
-            self.get_yyb_data(x[i]['codex'])
-            #sys.exit()
-        '''
+
+        day_list = self.mysql.getRecord("SELECT * FROM s_lhb WHERE 1")
+        for i in range(520, len(day_list)):
+            print "====%s" % i
+            if day_list[i]['codex'] == 8888:
+                continue
+            print day_list[i]['id']
+            self.get_yyb_last_dateline(day_list[i]['codex'])
+            time.sleep(1)
+
+        sys.exit()
+        return True
+
         logging.debug('Start Daily Lhb=====Days:%s ' % sys.argv[2])
         self.daily_lhb(sys.argv[2])
 
@@ -41,6 +46,10 @@ class LhbDataSpider(SpiderEngine):
         logging.debug('Start Daily Lhb=====LhbCount:%s ' % sys.argv[2])
         self.count_detail(sys.argv[2])
 
+        self.get_city_yyb()
+        return True
+
+        '''
         logging.debug('Start Daily Lhb=====New YYB:%s ' % sys.argv[2])
         sql_data = "select yyb_id from s_lhb_days_detail where 1 group by yyb_id"
         tmpdf = pandas.read_sql(sql_data, self.mysql.db)
@@ -49,12 +58,68 @@ class LhbDataSpider(SpiderEngine):
         has = []
         for code in has_yyb.values:
             has.append(code[1])
+        #print tmpdf
+        #print has
+        #sys.exit()
 
         for xd in tmpdf.values:
+
             if xd[0] == 0 or xd[0] == 8888:
                 continue
+            print xd[0]
+            sys.exit()
             if xd[0] not in has:
                 self.get_yyb_data(xd[0])
+        '''
+    def get_yyb_last_dateline(self, ds):
+        #ds = 80135988
+        url = "http://data.eastmoney.com/DataCenter_V3/stock2016/jymx.ashx?pagesize=50&page=1&js=var+fguIHta&param=&sortRule=-1&sortType=&gpfw=0&code=%s&rt=24462227" % ds
+        a = self.sGet(url)
+        a = a.replace("var fguIHta=", "")
+        re = json.loads(a)
+        if len(re['data']) > 0:
+            for k in range(0, len(re['data'])):
+                _tmp = re['data'][k]
+                last_date = int(_tmp['TDate'].replace('-', ''))
+                self.mysql.dbUpdate('s_lhb', {'last_dateline': last_date}, "codex=%s" % ds)
+                print last_date
+                break
+                #print last_date
+
+                #sys.exit()
+
+    def get_city_yyb(self):
+        url = "http://data.eastmoney.com/stock/yybcx.html"
+        _data = self.sGet(url)
+        _urls = self.sMatch('href="/Stock/lhb/city/', '\.html"', _data, 0)
+        for x in xrange(0, len(_urls)):
+            #_urls[x] = 440000
+            detail = "http://data.eastmoney.com/DataCenter_V3/stock2016/yybSearch.ashx?pagesize=1000&page=1&js=var+fguIHta&param=&sortRule=-1&sortType=UpCount&city=%s&typeCode=2&gpfw=0&code=%s&rt=24462162" % (_urls[x], _urls[x])
+            a = self.sGet(detail)
+            a = a.replace("var fguIHta=", "")
+            re = json.loads(a)
+            for k in range(0, len(re['data'])):
+                _tmp = re['data'][k]
+
+                indata = {
+                    'province': _tmp['Province'],
+                    'codex': _tmp['SalesCode'],
+                    'name': _tmp['SalesName'],
+                    'SumActMoney': _tmp['SumActMoney'],
+                    'SumActBMoney': _tmp['SumActBMoney'],
+                    'SumActSMoney': _tmp['SumActSMoney'],
+                    'UpCount': _tmp['UpCount'],
+                    'BCount': _tmp['BCount'],
+                    'SCount': _tmp['SCount']
+                }
+                print indata
+                _has = self.mysql.fetch_one("select * from  s_lhb where codex=%s" % _tmp['SalesCode'])
+                _where = "codex=%s" % _tmp['SalesCode']
+
+                if _has is not None:
+                    self.mysql.dbUpdate('s_lhb', indata, _where)
+                else:
+                    self.mysql.dbInsert('s_lhb', indata)
 
     def get_daily_detail(self, s_data, dateline):
         s_code = s_data['s_code']
@@ -141,34 +206,6 @@ class LhbDataSpider(SpiderEngine):
         self.mysql.dbInsert('s_lhb_days_detail', _in_data)
         return _in_data
 
-    def get_yyb_data(self, yyb_id):
-        url = "http://data.eastmoney.com/stock/lhb/yyb/%s.html" % yyb_id
-        logging.debug('GetUrl:%s ' % url)
-        _data = self.sGet(url)
-        _xxt = self.sMatch('<title>', '<\/title>', _data, 0)
-
-        _xxt2 = _xxt[0].replace('_', '')
-        _xxt2 = _xxt2.replace(u'数据中心', '')
-        _xxt2 = _xxt2.replace(u'东方财富网', '')
-        _xxt2 = _xxt2.replace(' ', '')
-
-        if(_xxt2 == u'机构专用'):
-            return False
-
-        _has = self.mysql.fetch_one("select * from  s_lhb where codex=%s" % yyb_id)
-        _where = "codex=%s" % yyb_id
-        res = {
-            'codex': yyb_id,
-            'name': _xxt2,
-            'province': '',
-            'city': ''
-        }
-        if _has is not None:
-            self.mysql.dbUpdate('s_lhb', res, _where)
-        else:
-            self.mysql.dbInsert('s_lhb', res)
-        print res
-
     def daily_lhb(self, dateline):
         #每日上榜
         d = datetime.datetime.strptime(dateline, "%Y%m%d")
@@ -248,12 +285,3 @@ class LhbDataSpider(SpiderEngine):
                     'dateline': dateline
                 }
                 self.mysql.dbInsert('s_lhb_daily', indata)
-
-    def get_new_yyb(self):
-        #最新营业部信息
-        for i in range(0, 13):
-            url = "http://data.eastmoney.com/DataCenter_V3/stock2016/BusinessRanking/pagesize=5,page=%s,sortRule=-1,sortType=,startDate=2010-06-26,endDate=2016-06-26,gpfw=0,js=var%20data_tab_1.html?rt=24448439" % i
-            _data = self.sGet(url)
-            re = json.loads(_data)
-            print re
-            sys.exit()

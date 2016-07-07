@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 import logging
 import json
 import random
@@ -27,7 +28,7 @@ class TouTiaoSpider(SpiderEngine):
         #头条列表
         print sys.argv
         self.tools.setup_logging(sys.argv[1], True, True)
-        _data = self.sGet('http://toutiao.com/api/article/recent/?source=2&count=50&category=video&_=1462718705623')
+        _data = self.sGet('http://toutiao.com/api/article/recent/?source=2&count=100&category=video&_=1462718705623')
         re = json.loads(_data)
         #quncms_db = self.config['mysql']['quncms']
         #mysql = sMysql(quncms_db['host'], quncms_db['user'], quncms_db['password'], quncms_db['dbname'])
@@ -96,6 +97,65 @@ class TouTiaoSpider(SpiderEngine):
                     up = {'video_id': tag[0], 'is_done': 1}
                     self.qundb.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
 
+    def run_user_list(self):
+        i = 1
+        tmp = self.qundb.getRecord("select * from video_author where vtype=1")
+        vmax = len(tmp)
+        while 1:
+            row = self.qundb.fetch_one("select * from video_author where id=%s" % i)
+            if i > vmax:
+                break
+            i += 1
+            if row is None:
+                continue
+            uid = row['media_url'].replace('http://toutiao.com/m', '')
+            uid = uid.replace('/', '')
+            _data = self.sGet(row['media_url'], 'utf-8')
+            is_video = self.sMatch('<td>播放:', '<\/td>', _data, 0)
+
+            if len(is_video) < 3:
+                print "not video"
+                self.qundb.dbUpdate('video_author', {'vtype': 2}, "id=%s" % row['id'])
+                continue
+
+            last = self.qundb.fetch_one("select * from video_contents where user_id=%s order by itemid desc limit 1" % uid)
+            tag = 'video_life'
+            if last is not None:
+                tag = last['tag']
+            print "====%s===" % i
+            title = self.sMatch('<div class="text">', '<\/div>', _data, 0)
+            items = self.sMatch('http:\/\/toutiao.com\/item\/', '\/', _data, 0)
+            imgs = self.sMatch('<img src="', '"', _data, 0)
+            times = self.sMatch('<td align="right">', '<\/td>', _data, 0)
+            vids = self.sMatch('group_id="', '"', _data, 0)
+            for k in range(0, len(title)-1):
+                if title[k] == '{{{abstract}}}':
+                    continue
+                item = {}
+
+                d = datetime.datetime.strptime(times[k], "%Y-%m-%d %H:%M")
+                ctime = time.mktime(d.timetuple())
+                item['user_id'] = uid
+                item['title'] = self.tools.strip_tags(title[k])
+                item['tag'] = tag
+                item['image_url'] = imgs[k+1]
+                item['item_seo_url'] = "http://toutiao.com/item/%s" % items[k]
+                item['v_id'] = str(vids[k])
+                item['item_id'] = str(items[k])
+                item['keywords'] = ''
+                item['video_play_count'] = random.randint(10, 2000)
+                item['external_visit_count'] = random.randint(10, 100)
+                item['digg_count'] = random.randint(10, 100)
+                item['create_time'] = str(ctime)
+                item['video_id'] = ''
+                item['video_url'] = ''
+                _has = self.qundb.fetch_one("select * from  video_contents where item_id='%s'" % item['item_id'])
+                print item
+                #sys.exit()
+                if _has is None:
+                    logging.debug('Done=====:%s=====%s ' % (item['title'], item['item_seo_url']))
+                    self.qundb.dbInsert('video_contents', item)
+
     def run_vlook(self):
         #微录
         self.__get_vlook_cate_list(1150)
@@ -108,9 +168,30 @@ class TouTiaoSpider(SpiderEngine):
         self.__get_vlook_cate_list(1160)
         self.__get_vlook_cate_list(1161)
 
-    def post_vlook(self):
-        #发布
-        self.run_vlook_post()
+    def save_video(self):
+        #发布 python site.py 1 vps_1
+        video_db = self.config['mysql']['quncms2']
+        self.qundb2 = sMysql(video_db['host'], video_db['user'], video_db['password'], video_db['dbname'])
+        itemid = sys.argv[2]
+        vps_no = sys.argv[3]
+
+        url = "http://%s/ajax/SaveVideo/?itemid=%s" % (video_db['video_host_ajax'], itemid)
+        print url
+        html = self.sGet(url, 'utf-8')
+        _data = json.loads(html)
+        print _data
+        if _data['url'] is not None:
+            local_file = "/htdocs/video/%s.mp4" % itemid
+            os.system("wget -O %s %s" % (local_file, _data['url']))
+            #判断是否空
+            if os.path.getsize(local_file) == 0:
+                print "==Download Faild"
+                sys.exit()
+            os.system('scp -P 7422 %s root@%s:/home/wwwroot/video.quncms.com/mp4/' % (local_file, video_db[vps_no]))
+
+            file_url = 'http://%s.%s/mp4/%s.mp4' % (vps_no, video_db['video_host'], itemid)
+            print "Done======%s" % file_url
+            self.qundb2.dbUpdate('video_contents', {'video_url': file_url}, "itemid=%s" % itemid)
 
     def run_vlook_post(self):
         data = self.qundb.getRecord("select * from video_contents where is_done=0 and source_site=2")

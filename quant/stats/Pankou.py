@@ -145,6 +145,7 @@ class Pankou(StatsEngine):
             #return True
             #同一分钟买卖盘去重
             word = d_str[0:-3]
+            word = "%s=%s" % (word, x['s_code'])
             word = hashlib.md5(word).hexdigest()
 
             _has = self.mysql.fetch_one("select * from  s_stock_runtime_snap_3 where hash_str='%s'" % word)

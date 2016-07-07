@@ -47,7 +47,9 @@ echo "Average & MA_count Done."
 #python realtime.py pankou 20160629
 #python realtime.py realtime_pankou 2
 
-#python wx.py get_baidu_words 3
-#python wx.py get_baidu_words 1
-#python wx.py get_baidu_words 2 46195
+#python site.py baidu_words_a
+#python site.py baidu_words_b
+#python site.py baidu_words_second 46195
+
+#python site.py save_video 1 v1
 

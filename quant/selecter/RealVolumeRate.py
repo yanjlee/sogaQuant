@@ -26,11 +26,12 @@ class RealVolumeRateSelecter(Selecter):
 
         t = time.time()-180*86400
         listing_date = self.tools.d_date('%Y%m%d', t)
-        #print self.lastDay
-        #sys.exit()
+        listing_date = 20151201
         #a = self.todayDF[self.todayDF.s_code == 'sz300104']
         self.todayDF = self.todayDF.apply(self.add_new_field, axis=1)
-        _data = self.todayDF[self.todayDF.bs_rate > 0.1].sort_values(by=('bs_rate'), ascending=False)
+        _data = self.todayDF[self.todayDF.bs_rate > 0.095].sort_values(by=('bs_rate'), ascending=False)
+        #print _data
+        #sys.exit()
         #查看昨天列表与当天
         sql_data = "select * FROM s_stock_list WHERE dateline=%s " % self.lastDay
         tmpdf = pandas.read_sql(sql_data, self.mysql.db)

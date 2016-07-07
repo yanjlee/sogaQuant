@@ -15,7 +15,7 @@ class HandicapSpider(SpiderEngine):
         _data = commands.getoutput(out_put)
 
         URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=%s' % _data
-        #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sz002156'
+        #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600749'
         #MONGO_IP = '127.0.0.1'
         #client = pymongo.MongoClient(MONGO_IP, 27017)
         #db = client.spider
@@ -26,7 +26,8 @@ class HandicapSpider(SpiderEngine):
             return False
 
         self.today = self.tools.d_date('%Y%m%d')
-
+        #print self.today
+        #sys.exit()
         data = self.sGet(URL, 'utf-8')
         data = data.split('";')
 
@@ -35,6 +36,7 @@ class HandicapSpider(SpiderEngine):
             if len(data[i]) < 30:
                 continue
             res = data[i].split(',')
+
             if int(res[8]) == 0:
                 continue
 
@@ -70,21 +72,21 @@ class HandicapSpider(SpiderEngine):
             item['date_str'] = "%s %s" % (res[30], res[31])
             a = item.values()
             word = '-'.join(a)
-
+            #item['hash'] = ''
             #item['hash'] = hashlib.md5(word).hexdigest()
             _hash = hashlib.md5(word).hexdigest()
             has = mcache.get(_hash)
             if has:
                 continue
-            mcache.set(_hash, 1, 86400)
 
             table = 's_stock_runtime_%s' % item['dateline']
             aitem = mysql.dbInsert(table, item)
             item['id'] = aitem['LAST_INSERT_ID()']
+            mcache.set(_hash, 1, 66400)
             self.__filter_big_order(item)
 
     def __filter_big_order(self, x):
-        stem = 10000000
+        stem = 13000000
         b1_m = int(float(x['B_1_volume']) * float(x['B_1_price']))
         b2_m = int(float(x['B_2_volume']) * float(x['B_2_price']))
         b3_m = int(float(x['B_3_volume']) * float(x['B_3_price']))
@@ -140,9 +142,18 @@ class HandicapSpider(SpiderEngine):
                 'b_amount': int(b_money/10000),
                 's_amount': int(s_money/10000)
             }
+            #已涨跌停的跳过
+            #_top = float(stock['last_close']) * 1.1
+            #_bottom = float(stock['last_close']) * 0.9
+
+            #if (float(stock['close']) == round(_top, 2)) or (float(stock['close']) == round(_bottom, 2)):
+            #    return True
+            #print a
+            #sys.exit()
             #同一分钟买卖盘去重
             #word = "%s-%s-%s" % (d_str[0:-2], a['s_amount'], a['b_amount'])
             word = d_str[0:-3]
+            word = "%s=%s" % (word, x['s_code'])
             word = hashlib.md5(word).hexdigest()
 
             _has = self.mysql.fetch_one("select * from  s_stock_runtime_snap where hash_str='%s'" % word)

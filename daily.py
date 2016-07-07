@@ -29,14 +29,6 @@ def get_factor(abc):
     os.system('php /htdocs/soga/trader/index.php Base get_fq_factor')
 
 
-def get_video(abc):
-    TouTiaoSpider().run()
-
-
-def get_video_info(abc):
-    TouTiaoDetailSpider().run()
-
-
 def get_es(abc):
     a = ElSearch(sys.argv)
     a.run()
