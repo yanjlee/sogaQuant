@@ -34,6 +34,8 @@ class LhbDataSpider(SpiderEngine):
         sys.exit()
         return True
         '''
+        #self.get_city_yyb()
+        #sys.exit()
 
         logging.debug('Start Daily Lhb=====Days:%s ' % sys.argv[2])
         self.daily_lhb(sys.argv[2])

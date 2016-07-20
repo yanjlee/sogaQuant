@@ -68,21 +68,49 @@ class TouTiaoSpider(SpiderEngine):
 
     def run_post(self):
         #定时发布一次80
-        i = 0
+        #i = 80489
+        data = self.qundb.fetch_one("select * from video_contents where is_done=0 and source_site=1 order by itemid asc limit 1")
+        if data is None:
+            print "done..."
+        i = data['itemid']
+        j = 1
         while 1:
-            if i > 80:
+        #print i
+        #sys.exit()
+            if j > 1000:
                 break
-            data = self.qundb.fetch_one("select * from video_contents where is_done=0 and source_site=1")
-            if data is None:
-                break
-
+                #data = self.qundb.fetch_one("select * from video_contents where is_done=0 and source_site=1")
+                #print "select * from video_contents where itemid >%s limit 1" % i
+            #sys.exit()
+            data = self.qundb.fetch_one("select * from video_contents where itemid ='%s'" % i)
+            print "select * from video_contents where itemid ='%s'" % i
+            #print data
             i += 1
+            if data is None:
+                print 'not found'
+                continue
+            #sys.exit()
+            if data['is_done'] == 1:
+                continue
+            if data['source_site'] == 2:
+                continue
+    #       print data
+            #sys.exit()
+            if data['item_seo_url'].index('item'):
+                idx = data['item_seo_url'].replace('http://toutiao.com/item/', '')
+                idx = data['item_seo_url'].replace('/item/', '')
 
-            url = "http://www.toutiao.com%s" % data['item_seo_url']
-            #
-            print url
-            logging.debug('===%s===url:%s' % (data['itemid'], url))
-            status = urllib.urlopen(url).code
+                url = "http://www.toutiao.com/i%s" % idx
+            else:
+                url = "http://www.toutiao.com%s" % data['item_seo_url']
+                #
+                print url
+     #           sys.exit()
+                logging.debug('===%s===url:%s' % (data['itemid'], url))
+                status = urllib.urlopen(url).code
+                #print status
+            #sys.exit()i
+            j += 1
             if status == 404 or status == 502:
                 self.qundb.dbQuery("DELETE FROM video_contents where itemid=%s" % data['itemid'])
             else:
@@ -95,7 +123,7 @@ class TouTiaoSpider(SpiderEngine):
                     self.qundb.dbQuery("DELETE FROM video_contents where itemid=%s" % data['itemid'])
                 else:
                     up = {'video_id': tag[0], 'is_done': 1}
-                    self.qundb.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
+                self.qundb.dbUpdate('video_contents', up, "itemid=%s" % data['itemid'])
 
     def run_user_list(self):
         quncms_db = self.config['mysql']['quncms2']

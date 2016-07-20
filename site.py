@@ -55,6 +55,7 @@ def save_video():
 
 
 def get_wx_data():
+    #230232
     WeiXinSpider().run()
 
 

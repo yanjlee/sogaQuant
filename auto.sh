@@ -30,26 +30,27 @@ echo "Average & MA_count Done."
 
 
 
-#python main.py daily 20160620
+#python /htdocs/quant/soga/main.py daily 20160620
 
 #qiniu =======57781======
 #runtime
-#python realtime.py while_change
+#python /htdocs/quant/soga/realtime.py while_change
 #python realtime.py get_min_data
 
 
-#python realtime.py get_five_sb 1
-#python realtime.py get_five_sb 2
-#python realtime.py get_five_sb 3
-#python realtime.py get_five_sb 4
+#python /htdocs/quant/soga/realtime.py pankou_save 1
+#python /htdocs/quant/soga/realtime.py pankou_save 2
+#python /htdocs/quant/soga/realtime.py pankou_save 3
+#python /htdocs/quant/soga/realtime.py pankou_save 4
+
+#python /htdocs/quant/soga/realtime.py pankou_open
+#python /htdocs/quant/soga/realtime.py pankou_realtime
+#python /htdocs/quant/soga/realtime.py pankou_replay 20160629
 
 
-#python realtime.py pankou 20160629
-#python realtime.py realtime_pankou 2
+#python /htdocs/quant/soga/site.py baidu_words_a
+#python /htdocs/quant/soga/site.py baidu_words_b
+#python /htdocs/quant/soga/site.py baidu_words_second 46195
 
-#python site.py baidu_words_a
-#python site.py baidu_words_b
-#python site.py baidu_words_second 46195
-
-#python site.py save_video 1 v1
+#python /htdocs/quant/soga/site.py save_video 1 v1
 

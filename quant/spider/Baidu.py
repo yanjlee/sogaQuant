@@ -180,6 +180,11 @@ class BaiduSpider(SpiderEngine):
                         'level': 1
                     }
                     self.db2.dbInsert('word_list', inwd)
+                    daily_w = {
+                        'dateline': self.today,
+                        'word': d[k]
+                    }
+                    self.db2.dbInsert('daily_word', daily_w)
                 else:
                     up = {'dateline': self.today}
                     self.db2.dbUpdate('word_list', up, "id=%s" % _has2['id'])

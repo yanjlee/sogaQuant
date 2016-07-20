@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import hashlib
 import commands
+import memcache
 from datetime import date, datetime
 from quant.core.Spider import *
 
@@ -9,16 +10,17 @@ class HandicapSpider(SpiderEngine):
     '''
     5档盘口
     '''
-    def run(self, mysql, mcache):
+    def run(self, mysql):
         vid = int(sys.argv[2])
+
         out_put = '/usr/bin/php /htdocs/quant/soga/stock.php %s' % vid
         _data = commands.getoutput(out_put)
 
         URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=%s' % _data
         #URL = 'http://hq.sinajs.cn/?func=getData._hq_cron();&list=sh600749'
-        #MONGO_IP = '127.0.0.1'
-        #client = pymongo.MongoClient(MONGO_IP, 27017)
-        #db = client.spider
+
+        self.mcache = memcache.Client(['127.0.0.1:11211'])
+
         is_opening = self.is_opening()
         if is_opening is False:
             print "GetFiveHandicap===Market Close===%s===;" % self.tools.d_date('%H%M%S')
@@ -75,15 +77,25 @@ class HandicapSpider(SpiderEngine):
             #item['hash'] = ''
             #item['hash'] = hashlib.md5(word).hexdigest()
             _hash = hashlib.md5(word).hexdigest()
-            has = mcache.get(_hash)
+            has = self.mcache.get(_hash)
             if has:
                 continue
 
             table = 's_stock_runtime_%s' % item['dateline']
             aitem = mysql.dbInsert(table, item)
             item['id'] = aitem['LAST_INSERT_ID()']
-            mcache.set(_hash, 1, 66400)
-            self.__filter_big_order(item)
+            self.mcache.set(_hash, 1, 66400)
+
+            _t_hash = "%s==%s" % (self.today, item['s_code'])
+            stock = self.mcache.get(_t_hash)
+            if stock:
+                _top = float(stock['last_close']) * 1.1
+                _bottom = float(stock['last_close']) * 0.9
+                #print "==%s====%s=" % (round(_top, 2), _bottom)
+                if (float(item['B_1_price']) == round(_top, 2)) or (float(item['S_1_price']) == round(_bottom, 2)):
+                    return False
+                else:
+                    self.__filter_big_order(item)
 
     def __filter_big_order(self, x):
         stem = 13000000

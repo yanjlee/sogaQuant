@@ -51,6 +51,8 @@ class RealVolumeRateSelecter(Selecter):
             if run_market < 200000:
                 continue
             curr = curr.iloc[0].chg
+            if curr < -4:
+                continue
                 #sys.exit()
             print "%s==%s==%s===%s==%s=" % (_data.iloc[i].s_code, _data.iloc[i]['name'],  _data.iloc[i].chg, curr, run_market)
             #sys.exit()
